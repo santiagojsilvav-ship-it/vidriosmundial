@@ -333,15 +333,17 @@
         <div class="relative order-1 h-[85vh] bg-[#f8f8f6] lg:order-2 lg:h-auto lg:min-h-0">
           <video
             id="hero-video"
-            src="./images/edificio3-compressed.mp4"
             autoplay
             muted
             loop
             playsinline
+            webkit-playsinline
             preload="auto"
-            class="absolute inset-0 h-full w-full object-cover object-center lg:object-contain"
-            aria-label="Video de la fachada de vidrio de un edificio moderno"
-          ></video>
+            poster="./images/edificio3-frame.jpg"
+            style="-webkit-transform:translateZ(0);transform:translateZ(0);"
+            class="absolute inset-0 h-full w-full object-contain object-center">
+            <source src="./images/edificio3-compressed.mp4" type="video/mp4">
+          </video>
         </div>
 
     </section>
