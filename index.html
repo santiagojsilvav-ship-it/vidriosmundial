@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vidrios Mundial — Soluciones Premium en Vidrio y Aluminio</title>
+  <meta name="description" content="Empresa venezolana fundada en 1972, especializada en vidrio arquitectónico, sistemas de aluminio e instalación integral. Representantes oficiales de Metalglas Bonomi en Venezuela." />
+
+  <!-- Fonts: Manrope (UI) + Fraunces (display serif) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+            display: ['Fraunces', 'serif'],
+          },
+          colors: {
+            ink: '#0a0a0a',
+            paper: '#ffffff',
+            mist: '#f7f7f7',
+            fog: '#e8eaed',
+            silver: '#9ca3af',
+          },
+          letterSpacing: {
+            widest2: '0.25em',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    ::selection {
+      background-color: #0a0a0a;
+      color: #ffffff;
+    }
+
+    /* ——— Reveal on scroll ——— */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ——— Glass reflection sweep (hero) ——— */
+    .glass-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 60%;
+      background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.22) 50%, transparent 100%);
+      transform: translateX(-160%) skewX(-15deg);
+      animation: glass-sweep 9s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+    @keyframes glass-sweep {
+      0%, 60% { transform: translateX(-160%) skewX(-15deg); }
+      80%, 100% { transform: translateX(360%) skewX(-15deg); }
+    }
+
+    /* ——— Mobile menu fade-in ——— */
+    #mobile-menu:not(.hidden) {
+      animation: menu-fade-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes menu-fade-in {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ——— Hero headline word entrance ——— */
+    .hero-word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(24px);
+      animation: word-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes word-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ——— Hero slow zoom loop ——— */
+    .hero-zoom {
+      animation: hero-zoom 8s ease-in-out infinite alternate;
+    }
+    @keyframes hero-zoom {
+      from { transform: scale(1); }
+      to { transform: scale(1.04); }
+    }
+
+    /* ——— Directional reveals (Nosotros) ——— */
+    .reveal-left,
+    .reveal-right {
+      opacity: 0;
+      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    .reveal-left { transform: translateX(-36px); }
+    .reveal-right { transform: translateX(36px); }
+    .reveal-left.is-visible,
+    .reveal-right.is-visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* ——— Service card lift hover ——— */
+    .service-card {
+      position: relative;
+      border-left: 2px solid transparent;
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.3s ease,
+                  border-color 0.3s ease,
+                  background-color 0.3s ease;
+    }
+    .service-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(10, 10, 10, 0.08);
+      border-left-color: #0a0a0a;
+      z-index: 10;
+    }
+
+    /* ——— Project image scale reveal ——— */
+    .project-figure .img-zoom img { transform: scale(1.08); }
+    .project-figure.is-visible .img-zoom img { transform: scale(1); }
+    .project-figure.is-visible .img-zoom:hover img { transform: scale(1.05); }
+
+    /* ——— Image zoom on hover ——— */
+    .img-zoom img {
+      transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .img-zoom:hover img {
+      transform: scale(1.05);
+    }
+
+    /* ——— Underline link animation ——— */
+    .link-line {
+      position: relative;
+    }
+    .link-line::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 100%;
+      height: 1px;
+      background-color: currentColor;
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .link-line:hover::after,
+    .link-line:focus-visible::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    /* ——— Nav scrolled state ——— */
+    #navbar.scrolled {
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom-color: #e8eaed;
+      box-shadow: 0 1px 24px rgba(10, 10, 10, 0.06);
+    }
+
+    /* ——— Focus visibility ——— */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid #0a0a0a;
+      outline-offset: 3px;
+    }
+
+    /* ——— Reduced motion ——— */
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+      .img-zoom img,
+      .link-line::after {
+        transition: none;
+      }
+      .glass-shimmer::after {
+        animation: none;
+        opacity: 0;
+      }
+      #mobile-menu:not(.hidden) {
+        animation: none;
+      }
+      .hero-word {
+        animation: none;
+        opacity: 1;
+        transform: none;
+      }
+      .hero-zoom {
+        animation: none;
+      }
+      .reveal-left,
+      .reveal-right {
+        opacity: 1;
+        transform: none;
+        transition: none;
+      }
+      .service-card,
+      .service-card:hover {
+        transform: none;
+        transition: none;
+      }
+      .project-figure .img-zoom img {
+        transform: none;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+
+<body class="overflow-x-hidden bg-paper font-sans text-ink antialiased">
+
+  <!-- ============================================================
+       NAV
+  ============================================================= -->
+  <header id="navbar" class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-white/80 backdrop-blur-md transition-all duration-300 lg:bg-transparent lg:backdrop-blur-none">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10" aria-label="Navegación principal">
+      <a href="#inicio" class="nav-logo font-sans text-base font-extrabold tracking-[0.3em] text-ink transition-colors duration-300 lg:text-sm lg:tracking-widest2">
+        VIDRIOS&nbsp;MUNDIAL
+      </a>
+
+      <div class="hidden items-center gap-10 lg:flex">
+        <a href="#servicios" class="nav-link link-line text-lg font-semibold text-ink/70 transition-colors duration-200 hover:text-ink">Servicios</a>
+        <a href="#proyectos" class="nav-link link-line text-lg font-semibold text-ink/70 transition-colors duration-200 hover:text-ink">Proyectos</a>
+        <a href="#nosotros" class="nav-link link-line text-lg font-semibold text-ink/70 transition-colors duration-200 hover:text-ink">Nosotros</a>
+        <a href="#contacto" class="nav-link link-line text-lg font-semibold text-ink/70 transition-colors duration-200 hover:text-ink">Contacto</a>
+        <a href="#contacto" class="cursor-pointer rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-ink/80">
+          Cotizar
+        </a>
+      </div>
+
+      <button id="menu-btn" class="cursor-pointer p-2 text-ink transition-colors duration-300 lg:hidden" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
+        <i data-lucide="menu" class="h-7 w-7" id="menu-icon-open"></i>
+        <i data-lucide="x" class="hidden h-8 w-8" id="menu-icon-close"></i>
+      </button>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden border-t border-ink/10 bg-[#f8f8f6] px-6 pb-10 pt-2 lg:hidden">
+      <div class="flex flex-col">
+        <a href="#servicios" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Servicios</a>
+        <a href="#proyectos" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Proyectos</a>
+        <a href="#nosotros" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Nosotros</a>
+        <a href="#contacto" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Contacto</a>
+        <a href="#contacto" class="mobile-link mt-8 inline-flex w-full items-center justify-center rounded-full bg-ink px-7 py-4 text-base font-semibold text-white">Cotizar</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="inicio">
+
+    <!-- ============================================================
+         HERO — split layout
+    ============================================================= -->
+    <section class="relative grid min-h-screen grid-cols-1 overflow-hidden bg-[#f8f8f6] lg:grid-cols-2">
+
+        <!-- Left: content -->
+        <div class="order-2 flex items-center bg-[#f8f8f6] px-6 pb-16 pt-12 lg:order-1 lg:px-12 lg:pb-24 lg:pt-36 xl:px-16">
+          <div class="w-full max-w-xl">
+            <p class="reveal mb-6 text-xs font-bold uppercase tracking-widest2 text-ink/50">
+              Caracas · Venezuela
+            </p>
+            <h1 class="font-display text-4xl font-light leading-[1.05] tracking-tight text-ink md:text-5xl lg:text-6xl xl:text-7xl">
+              <span class="hero-word" style="animation-delay: 100ms;">Soluciones</span>
+              <span class="hero-word" style="animation-delay: 220ms;"><em class="font-normal italic">Premium</em></span>
+              <span class="hero-word" style="animation-delay: 340ms;">en</span>
+              <span class="hero-word" style="animation-delay: 460ms;">Vidrio</span>
+              <span class="hero-word" style="animation-delay: 580ms;">y</span>
+              <span class="hero-word" style="animation-delay: 700ms;">Aluminio</span>
+            </h1>
+            <p class="reveal mt-8 max-w-xl text-base leading-relaxed text-ink/60 md:text-lg" style="--reveal-delay: 200ms;">
+              Desde 1972 transformando la arquitectura venezolana con precisión, calidad y excelencia en cada detalle.
+            </p>
+
+            <div class="reveal mt-10 flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center" style="--reveal-delay: 300ms;">
+              <a href="#contacto" class="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-ink/80">
+                Solicitar cotización
+                <i data-lucide="arrow-right" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"></i>
+              </a>
+              <a href="#proyectos" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-ink/30 px-8 py-4 text-sm font-semibold text-ink transition-colors duration-200 hover:border-ink hover:bg-ink hover:text-white">
+                Ver proyectos
+              </a>
+            </div>
+
+            <div class="reveal mt-16 flex max-w-md items-center gap-10 border-t border-ink/10 pt-8" style="--reveal-delay: 400ms;">
+              <div>
+                <p class="font-display text-3xl font-light text-ink" data-count="50" data-prefix="+">+50</p>
+                <p class="mt-1 text-xs font-medium uppercase tracking-widest text-ink/50">Años de experiencia</p>
+              </div>
+              <div class="h-10 w-px bg-ink/10" aria-hidden="true"></div>
+              <div>
+                <p class="font-display text-3xl font-light text-ink">Bonomi</p>
+                <p class="mt-1 text-xs font-medium uppercase tracking-widest text-ink/50">Representantes oficiales</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: video on matching background, building floats edge-to-edge on mobile -->
+        <div class="relative order-1 h-[85vh] bg-[#f8f8f6] lg:order-2 lg:h-auto lg:min-h-0">
+          <video
+            id="hero-video"
+            src="./images/edificio3.mp4"
+            autoplay
+            muted
+            loop
+            playsinline
+            class="absolute inset-0 h-full w-full object-cover object-center lg:object-contain"
+            aria-label="Video de la fachada de vidrio de un edificio moderno"
+          ></video>
+        </div>
+
+    </section>
+
+    <!-- ============================================================
+         SERVICIOS — card grid
+    ============================================================= -->
+    <section id="servicios" class="bg-paper py-24 md:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-10">
+
+        <div class="mb-16 max-w-2xl md:mb-20">
+          <p class="reveal mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Servicios</p>
+          <h2 class="reveal font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl" style="--reveal-delay: 100ms;">
+            Especialistas en cada <em class="font-normal italic">superficie</em>
+          </h2>
+          <p class="reveal mt-6 text-base leading-relaxed text-ink/60" style="--reveal-delay: 200ms;">
+            Soluciones integrales en vidrio y aluminio para proyectos residenciales, comerciales e institucionales de alta complejidad.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-fog bg-fog sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Card 1 -->
+          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
+            <div class="mb-8 flex items-start justify-between">
+              <i data-lucide="flame" class="h-7 w-7 text-ink"></i>
+              <span class="font-display text-sm italic text-silver">01</span>
+            </div>
+            <h3 class="font-display text-2xl font-normal text-ink">Vidrio Templado</h3>
+            <p class="mt-3 text-sm leading-relaxed text-ink/60">
+              Cinco veces más resistente que el vidrio convencional. Espesores de 4 a 14 mm, certificado bajo la norma ANSI Z97.1.
+            </p>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 80ms;">
+            <div class="mb-8 flex items-start justify-between">
+              <i data-lucide="layers" class="h-7 w-7 text-ink"></i>
+              <span class="font-display text-sm italic text-silver">02</span>
+            </div>
+            <h3 class="font-display text-2xl font-normal text-ink">Vidrio Laminado</h3>
+            <p class="mt-3 text-sm leading-relaxed text-ink/60">
+              Filtra el 99% de los rayos UV. Su intercalario PVB mantiene los fragmentos adheridos ante cualquier impacto.
+            </p>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 160ms;">
+            <div class="mb-8 flex items-start justify-between">
+              <i data-lucide="sun-snow" class="h-7 w-7 text-ink"></i>
+              <span class="font-display text-sm italic text-silver">03</span>
+            </div>
+            <h3 class="font-display text-2xl font-normal text-ink">Vidrio Insulado (DVH)</h3>
+            <p class="mt-3 text-sm leading-relaxed text-ink/60">
+              Doble acristalamiento con cámara hermética para máxima eficiencia energética y aislamiento térmico y acústico.
+            </p>
+          </article>
+
+          <!-- Card 4 -->
+          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 240ms;">
+            <div class="mb-8 flex items-start justify-between">
+              <i data-lucide="shield-check" class="h-7 w-7 text-ink"></i>
+              <span class="font-display text-sm italic text-silver">04</span>
+            </div>
+            <h3 class="font-display text-2xl font-normal text-ink">Vidrio Blindado</h3>
+            <p class="mt-3 text-sm leading-relaxed text-ink/60">
+              Protección balística certificada Nivel II al III para entornos que exigen la máxima seguridad sin sacrificar transparencia.
+            </p>
+          </article>
+
+          <!-- Card 5 -->
+          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 320ms;">
+            <div class="mb-8 flex items-start justify-between">
+              <i data-lucide="wind" class="h-7 w-7 text-ink"></i>
+              <span class="font-display text-sm italic text-silver">05</span>
+            </div>
+            <h3 class="font-display text-2xl font-normal text-ink">Laminado Anti-Huracán</h3>
+            <p class="mt-3 text-sm leading-relaxed text-ink/60">
+              Intercalario SentryGlas de alto desempeño, diseñado para resistir vientos extremos e impactos severos.
+            </p>
+          </article>
+
+          <!-- Card 6 -->
+          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 400ms;">
+            <div class="mb-8 flex items-start justify-between">
+              <i data-lucide="blinds" class="h-7 w-7 text-ink"></i>
+              <span class="font-display text-sm italic text-silver">06</span>
+            </div>
+            <h3 class="font-display text-2xl font-normal text-ink">Ventanería Aluprom</h3>
+            <p class="mt-3 text-sm leading-relaxed text-ink/60">
+              Series Aluprom 22 y Aluprom 30: sistema europeo de aluminio para puertas y ventanas de alto desempeño.
+            </p>
+          </article>
+
+          <!-- Card 7 -->
+          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 480ms;">
+            <div class="mb-8 flex items-start justify-between">
+              <i data-lucide="fence" class="h-7 w-7 text-ink"></i>
+              <span class="font-display text-sm italic text-silver">07</span>
+            </div>
+            <h3 class="font-display text-2xl font-normal text-ink">Barandas B-8000</h3>
+            <p class="mt-3 text-sm leading-relaxed text-ink/60">
+              Sistema Metalglas Bonomi para barandas de vidrio, certificado por el laboratorio PfB Rosenheim.
+            </p>
+          </article>
+
+          <!-- Card CTA -->
+          <article class="reveal flex flex-col justify-between bg-mist p-8 md:p-10 lg:col-span-2" style="--reveal-delay: 560ms;">
+            <div>
+              <h3 class="font-display text-2xl font-normal text-ink">¿Tiene un proyecto en mente?</h3>
+              <p class="mt-3 max-w-md text-sm leading-relaxed text-ink/60">
+                Nuestro equipo le asesora en la especificación técnica de la solución ideal para su obra.
+              </p>
+            </div>
+            <a href="#contacto" class="link-line mt-8 w-fit cursor-pointer text-sm font-semibold text-ink">
+              Solicitar asesoría →
+            </a>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CALIDAD CERTIFICADA — strip
+    ============================================================= -->
+    <section class="border-t border-fog bg-paper py-14 md:py-16">
+      <div class="mx-auto max-w-7xl px-6 lg:px-10">
+        <p class="reveal mb-10 text-center text-xs font-bold uppercase tracking-widest2 text-silver">Calidad Certificada</p>
+        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+
+          <div class="reveal flex items-center gap-4">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
+              <i data-lucide="file-check" class="h-5 w-5 text-ink"></i>
+            </span>
+            <p class="text-sm font-semibold leading-snug text-ink">ANSI Z97.1 / EN 12150</p>
+          </div>
+
+          <div class="reveal flex items-center gap-4" style="--reveal-delay: 100ms;">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
+              <i data-lucide="shield" class="h-5 w-5 text-ink"></i>
+            </span>
+            <p class="text-sm font-semibold leading-snug text-ink">Protección Balística Certificada</p>
+          </div>
+
+          <div class="reveal flex items-center gap-4" style="--reveal-delay: 200ms;">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
+              <i data-lucide="handshake" class="h-5 w-5 text-ink"></i>
+            </span>
+            <p class="text-sm font-semibold leading-snug text-ink">Representantes Oficiales Metalglas Bonomi</p>
+          </div>
+
+          <div class="reveal flex items-center gap-4" style="--reveal-delay: 300ms;">
+            <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
+              <i data-lucide="award" class="h-5 w-5 text-ink"></i>
+            </span>
+            <p class="text-sm font-semibold leading-snug text-ink">Tecnología Europea Aluprom</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PROYECTOS — image grid
+    ============================================================= -->
+    <section id="proyectos" class="bg-mist py-24 md:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-10">
+
+        <div class="mb-16 flex flex-col gap-6 md:mb-20 md:flex-row md:items-end md:justify-between">
+          <div class="max-w-2xl">
+            <p class="reveal mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Proyectos</p>
+            <h2 class="reveal font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl" style="--reveal-delay: 100ms;">
+              Obra que habla por <em class="font-normal italic">sí misma</em>
+            </h2>
+          </div>
+          <a href="#contacto" class="reveal link-line w-fit text-sm font-semibold text-ink" style="--reveal-delay: 200ms;">
+            Iniciar un proyecto →
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+          <!-- Project 1 -->
+          <figure class="reveal project-figure group cursor-pointer">
+            <div class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+              <img
+                src="./images/proyecto-fachada-flotante.jpg"
+                alt="Fachada flotante de vidrio con anclajes puntuales tipo araña"
+                class="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <figcaption class="mt-4">
+              <p class="text-xs font-bold uppercase tracking-widest text-silver">Estructural</p>
+              <p class="mt-1 font-display text-lg text-ink">Vidrio Estructural</p>
+            </figcaption>
+          </figure>
+
+          <!-- Project 2 -->
+          <figure class="reveal project-figure group cursor-pointer" style="--reveal-delay: 100ms;">
+            <div class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+              <img
+                src="./images/proyecto-muro-cortina.jpg"
+                alt="Torre corporativa con muro cortina de vidrio verde"
+                class="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <figcaption class="mt-4">
+              <p class="text-xs font-bold uppercase tracking-widest text-silver">Corporativo</p>
+              <p class="mt-1 font-display text-lg text-ink">Sistema Aluprom</p>
+            </figcaption>
+          </figure>
+
+          <!-- Project 3 -->
+          <figure class="reveal project-figure group cursor-pointer" style="--reveal-delay: 200ms;">
+            <div class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+              <img
+                src="./images/proyecto-diseno-fachadas.jpg"
+                alt="Render arquitectónico de torre con fachada curva de aluminio y vidrio"
+                class="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <figcaption class="mt-4">
+              <p class="text-xs font-bold uppercase tracking-widest text-silver">Arquitectónico</p>
+              <p class="mt-1 font-display text-lg text-ink">Fachada Arquitectónica</p>
+            </figcaption>
+          </figure>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         NOSOTROS — two column
+    ============================================================= -->
+    <section id="nosotros" class="bg-paper py-24 md:py-32">
+      <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 lg:grid-cols-2 lg:gap-24 lg:px-10">
+
+        <!-- Text -->
+        <div>
+          <p class="reveal-left mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Nosotros</p>
+          <h2 class="reveal-left font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl" style="--reveal-delay: 100ms;">
+            Tradición e innovación en cada <em class="font-normal italic">proyecto</em>
+          </h2>
+
+          <div class="reveal-left mt-8 space-y-6 text-base leading-relaxed text-ink/60" style="--reveal-delay: 200ms;">
+            <p>
+              Fundada en 1972, <strong class="font-semibold text-ink">Vidrios Mundial</strong> nació como distribuidora mayorista de vidrio plano y evolucionó hasta convertirse en un fabricante industrial integrado, con líneas de producción de vidrio templado, laminado y blindado, y sistemas arquitectónicos de aluminio.
+            </p>
+            <p>
+              Desde 2017 ofrecemos servicios integrales de instalación, acompañando cada proyecto desde el diseño hasta la fabricación y el montaje final.
+            </p>
+          </div>
+
+          <ul class="reveal-left mt-10 overflow-hidden rounded-2xl border border-fog" style="--reveal-delay: 300ms;">
+            <li class="flex items-start gap-4 border-b border-fog p-6">
+              <i data-lucide="factory" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <div>
+                <p class="font-semibold text-ink">Vidrio arquitectónico</p>
+                <p class="mt-1 text-sm leading-relaxed text-ink/60">Producción y comercialización de vidrio arquitectónico.</p>
+              </div>
+            </li>
+            <li class="flex items-start gap-4 border-b border-fog p-6">
+              <i data-lucide="frame" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <div>
+                <p class="font-semibold text-ink">Sistemas de aluminio</p>
+                <p class="mt-1 text-sm leading-relaxed text-ink/60">Fabricación de sistemas de aluminio para cerramientos.</p>
+              </div>
+            </li>
+            <li class="flex items-start gap-4 p-6">
+              <i data-lucide="hard-hat" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <div>
+                <p class="font-semibold text-ink">Instalación integral</p>
+                <p class="mt-1 text-sm leading-relaxed text-ink/60">Instalación integral de proyectos de construcción.</p>
+              </div>
+            </li>
+          </ul>
+
+          <div class="reveal-left mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-fog bg-fog" style="--reveal-delay: 400ms;">
+            <div class="bg-mist p-6">
+              <p class="font-display text-3xl font-light text-ink" data-count="50" data-prefix="+">+50</p>
+              <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Años de trayectoria</p>
+            </div>
+            <div class="bg-mist p-6">
+              <p class="font-display text-3xl font-light text-ink">1972</p>
+              <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Año de fundación</p>
+            </div>
+            <div class="bg-mist p-6">
+              <p class="font-display text-3xl font-light text-ink">3</p>
+              <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Líneas estratégicas</p>
+            </div>
+            <div class="bg-mist p-6">
+              <p class="font-display text-3xl font-light text-ink">2017</p>
+              <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Instalación integral</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Image -->
+        <div class="reveal-right relative" style="--reveal-delay: 200ms;">
+          <div class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl">
+            <img
+              src="./images/nosotros-detalle.jpg"
+              alt="Detalle de cubierta de vidrio curva y barandas de vidrio en edificio moderno"
+              class="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <div class="absolute -bottom-6 -left-6 hidden rounded-2xl border border-fog bg-white p-6 shadow-sm lg:block">
+            <p class="text-xs font-bold uppercase tracking-widest text-silver">Caracas</p>
+            <p class="mt-1 font-display text-xl text-ink">Venezuela</p>
+          </div>
+
+          <div class="mt-12 space-y-4">
+            <div class="rounded-2xl border border-fog bg-mist p-6 md:p-8">
+              <p class="text-xs font-bold uppercase tracking-widest text-silver">Misión</p>
+              <p class="mt-3 font-display text-lg font-light italic leading-relaxed text-ink">
+                "Satisfacer las necesidades del mercado de la construcción mediante el diseño, fabricación e instalación de soluciones integrales que combinen innovación, seguridad, eficiencia y estética."
+              </p>
+            </div>
+            <div class="rounded-2xl border border-fog bg-mist p-6 md:p-8">
+              <p class="text-xs font-bold uppercase tracking-widest text-silver">Visión</p>
+              <p class="mt-3 font-display text-lg font-light italic leading-relaxed text-ink">
+                "Consolidarnos como la empresa líder en sistemas de cerramiento de vidrio en Venezuela, reconocida por innovación industrial y excelencia operativa."
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============================================================
+         ALIANZA — Metalglas Bonomi
+    ============================================================= -->
+    <section id="alianza" class="bg-ink py-24 text-white md:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-10">
+        <div class="grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24">
+
+          <div>
+            <p class="reveal mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Alianza estratégica</p>
+            <h2 class="reveal font-display text-4xl font-light leading-tight tracking-tight md:text-5xl" style="--reveal-delay: 100ms;">
+              Representantes oficiales de <em class="font-normal italic">Metalglas Bonomi</em> en Venezuela
+            </h2>
+            <p class="reveal mt-8 max-w-lg text-base leading-relaxed text-white/60" style="--reveal-delay: 200ms;">
+              Esta alianza nos da acceso a tecnología de vanguardia y materiales de la más alta calidad del mercado internacional, garantizando productos certificados que cumplen con los estándares más exigentes.
+            </p>
+          </div>
+
+          <ul class="reveal space-y-px overflow-hidden rounded-2xl border border-white/10" style="--reveal-delay: 300ms;">
+            <li class="flex items-start gap-4 border-b border-white/10 p-6">
+              <i data-lucide="badge-check" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <div>
+                <p class="font-semibold">Productos certificados</p>
+                <p class="mt-1 text-sm leading-relaxed text-white/50">Cumplimiento de los estándares internacionales más exigentes.</p>
+              </div>
+            </li>
+            <li class="flex items-start gap-4 border-b border-white/10 p-6">
+              <i data-lucide="cpu" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <div>
+                <p class="font-semibold">Tecnología de vanguardia</p>
+                <p class="mt-1 text-sm leading-relaxed text-white/50">Acceso directo a la innovación del mercado internacional.</p>
+              </div>
+            </li>
+            <li class="flex items-start gap-4 p-6">
+              <i data-lucide="gem" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <div>
+                <p class="font-semibold">Materiales premium</p>
+                <p class="mt-1 text-sm leading-relaxed text-white/50">La más alta calidad disponible, respaldada por nuestra representación oficial.</p>
+              </div>
+            </li>
+          </ul>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         CONTACTO
+    ============================================================= -->
+    <section id="contacto" class="bg-mist py-24 md:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-10">
+
+        <div class="mb-16 max-w-2xl md:mb-20">
+          <p class="reveal mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Contacto</p>
+          <h2 class="reveal font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl" style="--reveal-delay: 100ms;">
+            Hablemos de su próximo <em class="font-normal italic">proyecto</em>
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 gap-16 lg:grid-cols-5 lg:gap-24">
+
+          <!-- Info -->
+          <div class="space-y-2 lg:col-span-2">
+            <a href="https://wa.me/584141234567" target="_blank" rel="noopener noreferrer"
+               class="reveal group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink">
+              <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-white">
+                <i data-lucide="message-circle" class="h-5 w-5"></i>
+              </span>
+              <span>
+                <span class="block text-xs font-bold uppercase tracking-widest text-silver">WhatsApp</span>
+                <span class="mt-0.5 block font-semibold text-ink">Escríbenos directamente</span>
+              </span>
+              <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
+            </a>
+
+            <a href="mailto:info@vidriosmundial.com"
+               class="reveal group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 100ms;">
+              <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
+                <i data-lucide="mail" class="h-5 w-5"></i>
+              </span>
+              <span>
+                <span class="block text-xs font-bold uppercase tracking-widest text-silver">Email</span>
+                <span class="mt-0.5 block font-semibold text-ink">info@vidriosmundial.com</span>
+              </span>
+              <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
+            </a>
+
+            <a href="https://instagram.com/vidriosmundial" target="_blank" rel="noopener noreferrer"
+               class="reveal group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 200ms;">
+              <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
+                <i data-lucide="instagram" class="h-5 w-5"></i>
+              </span>
+              <span>
+                <span class="block text-xs font-bold uppercase tracking-widest text-silver">Instagram</span>
+                <span class="mt-0.5 block font-semibold text-ink">@vidriosmundial</span>
+              </span>
+              <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
+            </a>
+
+            <div class="reveal flex items-center gap-5 rounded-2xl border border-fog bg-white p-6" style="--reveal-delay: 300ms;">
+              <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
+                <i data-lucide="map-pin" class="h-5 w-5"></i>
+              </span>
+              <span>
+                <span class="block text-xs font-bold uppercase tracking-widest text-silver">Ubicación</span>
+                <span class="mt-0.5 block font-semibold text-ink">Caracas, Venezuela</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Form -->
+          <form id="quote-form" class="reveal rounded-2xl border border-fog bg-white p-8 md:p-10 lg:col-span-3" style="--reveal-delay: 200ms;">
+            <h3 class="font-display text-2xl font-normal text-ink">Solicitar cotización</h3>
+            <p class="mt-2 text-sm text-ink/60">Complete el formulario y le responderemos por WhatsApp.</p>
+
+            <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <div>
+                <label for="f-nombre" class="mb-2 block text-xs font-bold uppercase tracking-widest text-silver">Nombre *</label>
+                <input id="f-nombre" name="nombre" type="text" required placeholder="Su nombre"
+                       class="w-full rounded-xl border border-fog bg-mist px-4 py-3.5 text-sm text-ink placeholder:text-silver focus:border-ink" />
+              </div>
+              <div>
+                <label for="f-telefono" class="mb-2 block text-xs font-bold uppercase tracking-widest text-silver">Teléfono</label>
+                <input id="f-telefono" name="telefono" type="tel" placeholder="+58 412 000 0000"
+                       class="w-full rounded-xl border border-fog bg-mist px-4 py-3.5 text-sm text-ink placeholder:text-silver focus:border-ink" />
+              </div>
+              <div class="sm:col-span-2">
+                <label for="f-servicio" class="mb-2 block text-xs font-bold uppercase tracking-widest text-silver">Tipo de proyecto *</label>
+                <select id="f-servicio" name="servicio" required
+                        class="w-full cursor-pointer appearance-none rounded-xl border border-fog bg-mist px-4 py-3.5 text-sm text-ink focus:border-ink">
+                  <option value="" disabled selected>Seleccione un servicio</option>
+                  <option>Vidrio Templado</option>
+                  <option>Vidrio Laminado</option>
+                  <option>Vidrio Insulado (DVH)</option>
+                  <option>Vidrio Blindado</option>
+                  <option>Laminado Anti-Huracán</option>
+                  <option>Ventanería Aluprom</option>
+                  <option>Barandas B-8000</option>
+                  <option>Otro</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label for="f-mensaje" class="mb-2 block text-xs font-bold uppercase tracking-widest text-silver">Mensaje *</label>
+                <textarea id="f-mensaje" name="mensaje" rows="4" required placeholder="Cuéntenos sobre su proyecto…"
+                          class="w-full resize-none rounded-xl border border-fog bg-mist px-4 py-3.5 text-sm text-ink placeholder:text-silver focus:border-ink"></textarea>
+              </div>
+            </div>
+
+            <button type="submit"
+                    class="group mt-8 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-ink/80 sm:w-auto">
+              Enviar por WhatsApp
+              <i data-lucide="send" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"></i>
+            </button>
+          </form>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================= -->
+  <footer class="bg-ink text-white">
+    <div class="mx-auto max-w-7xl px-6 py-16 lg:px-10 md:py-20">
+      <div class="grid grid-cols-1 gap-12 md:grid-cols-12">
+
+        <div class="md:col-span-5">
+          <p class="text-sm font-extrabold tracking-widest2">VIDRIOS&nbsp;MUNDIAL</p>
+          <p class="mt-5 max-w-sm text-sm leading-relaxed text-white/50">
+            Soluciones arquitectónicas premium en vidrio y aluminio. Representantes oficiales de Metalglas Bonomi en Venezuela.
+          </p>
+        </div>
+
+        <nav class="md:col-span-3" aria-label="Enlaces del sitio">
+          <p class="text-xs font-bold uppercase tracking-widest text-silver">Sitio</p>
+          <ul class="mt-5 space-y-3 text-sm">
+            <li><a href="#servicios" class="text-white/60 transition-colors duration-200 hover:text-white">Servicios</a></li>
+            <li><a href="#proyectos" class="text-white/60 transition-colors duration-200 hover:text-white">Proyectos</a></li>
+            <li><a href="#nosotros" class="text-white/60 transition-colors duration-200 hover:text-white">Nosotros</a></li>
+            <li><a href="#contacto" class="text-white/60 transition-colors duration-200 hover:text-white">Contacto</a></li>
+          </ul>
+        </nav>
+
+        <div class="md:col-span-4">
+          <p class="text-xs font-bold uppercase tracking-widest text-silver">Contacto</p>
+          <ul class="mt-5 space-y-3 text-sm">
+            <li>
+              <a href="https://wa.me/584141234567" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white">
+                <i data-lucide="message-circle" class="h-4 w-4"></i> WhatsApp
+              </a>
+            </li>
+            <li>
+              <a href="mailto:info@vidriosmundial.com" class="inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white">
+                <i data-lucide="mail" class="h-4 w-4"></i> info@vidriosmundial.com
+              </a>
+            </li>
+            <li>
+              <a href="https://instagram.com/vidriosmundial" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white">
+                <i data-lucide="instagram" class="h-4 w-4"></i> @vidriosmundial
+              </a>
+            </li>
+            <li class="inline-flex items-center gap-2 text-white/60">
+              <i data-lucide="map-pin" class="h-4 w-4"></i> Caracas, Venezuela
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-xs text-white/40 sm:flex-row sm:items-center">
+        <p>© <span id="year"></span> Vidrios Mundial. Todos los derechos reservados.</p>
+        <p>Caracas · Venezuela</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       SCRIPTS
+  ============================================================= -->
+  <script>
+    // Lucide icons
+    lucide.createIcons();
+
+    // ——— Reveal on scroll ———
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+      revealEls.forEach((el) => el.classList.add('is-visible'));
+    } else {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+      );
+      revealEls.forEach((el) => observer.observe(el));
+    }
+
+    // ——— Hero video: respect reduced motion ———
+    const heroVideo = document.getElementById('hero-video');
+    if (heroVideo && prefersReducedMotion) {
+      heroVideo.removeAttribute('autoplay');
+      heroVideo.pause();
+    }
+
+    // ——— Navbar scrolled state ———
+    const navbar = document.getElementById('navbar');
+    const onScroll = () => navbar.classList.toggle('scrolled', window.scrollY > 24);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // ——— Mobile menu ———
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('menu-icon-open');
+    const iconClose = document.getElementById('menu-icon-close');
+
+    const setMenu = (open) => {
+      mobileMenu.classList.toggle('hidden', !open);
+      iconOpen.classList.toggle('hidden', open);
+      iconClose.classList.toggle('hidden', !open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+      menuBtn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+    };
+
+    menuBtn.addEventListener('click', () => setMenu(mobileMenu.classList.contains('hidden')));
+    document.querySelectorAll('.mobile-link').forEach((link) =>
+      link.addEventListener('click', () => setMenu(false))
+    );
+
+    // ——— Quote form → WhatsApp ———
+    document.getElementById('quote-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(e.target);
+      const lines = [
+        'Hola, quisiera solicitar una cotización.',
+        `*Nombre:* ${data.get('nombre')}`,
+        data.get('telefono') ? `*Teléfono:* ${data.get('telefono')}` : null,
+        `*Servicio:* ${data.get('servicio')}`,
+        `*Mensaje:* ${data.get('mensaje')}`,
+      ].filter(Boolean);
+      window.open(`https://wa.me/584141234567?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener');
+    });
+
+    // ——— Count-up stats ———
+    const counters = document.querySelectorAll('[data-count]');
+    const renderCount = (el, value) => {
+      el.textContent = (el.dataset.prefix || '') + value;
+    };
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+      counters.forEach((el) => renderCount(el, el.dataset.count));
+    } else {
+      const countObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            countObserver.unobserve(entry.target);
+            const el = entry.target;
+            const target = parseInt(el.dataset.count, 10);
+            const duration = 1400;
+            const start = performance.now();
+            const tick = (now) => {
+              const progress = Math.min((now - start) / duration, 1);
+              const eased = 1 - Math.pow(1 - progress, 3);
+              renderCount(el, Math.round(eased * target));
+              if (progress < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+          });
+        },
+        { threshold: 0.6 }
+      );
+      counters.forEach((el) => countObserver.observe(el));
+    }
+
+    // ——— Footer year ———
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
