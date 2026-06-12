@@ -1004,5 +1004,22 @@
     // ——— Footer year ———
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var video = document.getElementById('hero-video');
+    if (video) {
+      video.play().catch(function() {
+        // If autoplay fails, try on first user interaction
+        document.addEventListener('touchstart', function() {
+          video.play();
+        }, {once: true});
+        document.addEventListener('click', function() {
+          video.play();
+        }, {once: true});
+      });
+    }
+  });
+  </script>
 </body>
 </html>
