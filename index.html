@@ -45,10 +45,24 @@
       color: #ffffff;
     }
 
+    /* ——— Noise grain overlay ——— */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0.04;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-repeat: repeat;
+      background-size: 256px 256px;
+    }
+
     /* ——— Reveal on scroll ——— */
     .reveal {
       opacity: 0;
-      transform: translateY(28px);
+      transform: translateY(28px) scale(0.97);
       transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
                   transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
       transition-delay: var(--reveal-delay, 0ms);
@@ -56,7 +70,7 @@
     }
     .reveal.is-visible {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
 
     /* ——— Glass reflection sweep (hero) ——— */
@@ -116,18 +130,19 @@
       transition-delay: var(--reveal-delay, 0ms);
       will-change: opacity, transform;
     }
-    .reveal-left { transform: translateX(-36px); }
-    .reveal-right { transform: translateX(36px); }
+    .reveal-left { transform: translateX(-36px) scale(0.97); }
+    .reveal-right { transform: translateX(36px) scale(0.97); }
     .reveal-left.is-visible,
     .reveal-right.is-visible {
       opacity: 1;
-      transform: translateX(0);
+      transform: translateX(0) scale(1);
     }
 
     /* ——— Service card lift hover ——— */
     .service-card {
       position: relative;
       border-left: 2px solid transparent;
+      box-shadow: 0 4px 20px rgba(10, 10, 10, 0.04);
       transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
                   box-shadow 0.3s ease,
                   border-color 0.3s ease,
@@ -138,6 +153,21 @@
       box-shadow: 0 16px 40px rgba(10, 10, 10, 0.08);
       border-left-color: #0a0a0a;
       z-index: 10;
+    }
+
+    /* ——— Resting elevation for cards ——— */
+    .card-shadow {
+      box-shadow: 0 4px 20px rgba(10, 10, 10, 0.04);
+    }
+
+    /* ——— Glass-morphism ——— */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-top-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 4px 24px rgba(10, 10, 10, 0.06);
     }
 
     /* ——— Project image scale reveal ——— */
@@ -184,6 +214,26 @@
       box-shadow: 0 1px 24px rgba(10, 10, 10, 0.06);
     }
 
+    /* ——— Nav over hero video: transparent + light, until scrolled past hero ——— */
+    #navbar:not(.scrolled) {
+      background-color: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    #navbar:not(.scrolled) .nav-link {
+      color: rgba(255, 255, 255, 0.85);
+    }
+    #navbar:not(.scrolled) .nav-link:hover {
+      color: #ffffff;
+    }
+    #navbar:not(.scrolled) .nav-logo img {
+      filter: brightness(0) invert(1);
+      transition: filter 0.3s ease;
+    }
+    #navbar:not(.scrolled) #menu-btn {
+      color: #ffffff;
+    }
+
     /* ——— Focus visibility ——— */
     a:focus-visible,
     button:focus-visible,
@@ -219,6 +269,9 @@
 
     /* ——— Reduced motion ——— */
     @media (prefers-reduced-motion: reduce) {
+      body::after {
+        display: none;
+      }
       .reveal {
         opacity: 1;
         transform: none;
@@ -545,7 +598,7 @@
 
           <!-- Project 1 -->
           <figure class="reveal project-figure group cursor-pointer">
-            <div class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+            <div class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
               <img
                 src="./images/proyecto-fachada-flotante.jpg"
                 alt="Fachada flotante de vidrio con anclajes puntuales tipo araña"
@@ -561,7 +614,7 @@
 
           <!-- Project 2 -->
           <figure class="reveal project-figure group cursor-pointer" style="--reveal-delay: 100ms;">
-            <div class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+            <div class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
               <img
                 src="./images/proyecto-muro-cortina.jpg"
                 alt="Torre corporativa con muro cortina de vidrio verde"
@@ -577,7 +630,7 @@
 
           <!-- Project 3 -->
           <figure class="reveal project-figure group cursor-pointer" style="--reveal-delay: 200ms;">
-            <div class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+            <div class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
               <img
                 src="./images/proyecto-diseno-fachadas.jpg"
                 alt="Render arquitectónico de torre con fachada curva de aluminio y vidrio"
@@ -642,20 +695,20 @@
           </ul>
 
           <div class="reveal-left mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-fog bg-fog" style="--reveal-delay: 400ms;">
-            <div class="bg-mist p-6">
+            <div class="glass-card p-6">
               <p class="font-display text-3xl font-light text-ink" data-count="50" data-prefix="+">+50</p>
               <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Años de trayectoria</p>
             </div>
-            <div class="bg-mist p-6">
-              <p class="font-display text-3xl font-light text-ink">1972</p>
+            <div class="glass-card p-6">
+              <p class="font-display text-3xl font-light text-ink" data-count="1972">1972</p>
               <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Año de fundación</p>
             </div>
-            <div class="bg-mist p-6">
-              <p class="font-display text-3xl font-light text-ink">3</p>
+            <div class="glass-card p-6">
+              <p class="font-display text-3xl font-light text-ink" data-count="3">3</p>
               <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Líneas estratégicas</p>
             </div>
-            <div class="bg-mist p-6">
-              <p class="font-display text-3xl font-light text-ink">2017</p>
+            <div class="glass-card p-6">
+              <p class="font-display text-3xl font-light text-ink" data-count="2017">2017</p>
               <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Instalación integral</p>
             </div>
           </div>
@@ -671,19 +724,19 @@
               loading="lazy"
             />
           </div>
-          <div class="absolute -bottom-6 -left-6 hidden rounded-2xl border border-fog bg-white p-6 shadow-sm lg:block">
+          <div class="glass-card absolute -bottom-6 -left-6 hidden rounded-2xl p-6 lg:block">
             <p class="text-xs font-bold uppercase tracking-widest text-silver">Caracas</p>
             <p class="mt-1 font-display text-xl text-ink">Venezuela</p>
           </div>
 
           <div class="mt-12 space-y-4">
-            <div class="rounded-2xl border border-fog bg-mist p-6 md:p-8">
+            <div class="card-shadow rounded-2xl border border-fog bg-mist p-6 md:p-8">
               <p class="text-xs font-bold uppercase tracking-widest text-silver">Misión</p>
               <p class="mt-3 font-display text-lg font-light italic leading-relaxed text-ink">
                 "Satisfacer las necesidades del mercado de la construcción mediante el diseño, fabricación e instalación de soluciones integrales que combinen innovación, seguridad, eficiencia y estética."
               </p>
             </div>
-            <div class="rounded-2xl border border-fog bg-mist p-6 md:p-8">
+            <div class="card-shadow rounded-2xl border border-fog bg-mist p-6 md:p-8">
               <p class="text-xs font-bold uppercase tracking-widest text-silver">Visión</p>
               <p class="mt-3 font-display text-lg font-light italic leading-relaxed text-ink">
                 "Consolidarnos como la empresa líder en sistemas de cerramiento de vidrio en Venezuela, reconocida por innovación industrial y excelencia operativa."
@@ -698,7 +751,7 @@
     <!-- ============================================================
          ALIANZA — Metalglas Bonomi
     ============================================================= -->
-    <section id="alianza" class="bg-ink py-24 text-white md:py-32">
+    <section id="alianza" class="py-24 text-white md:py-32" style="background: radial-gradient(ellipse at 50% 0%, #1a1a1a 0%, #0a0a0a 70%)">
       <div class="mx-auto max-w-7xl px-6 lg:px-10">
         <div class="grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24">
 
@@ -758,7 +811,7 @@
           <!-- Info -->
           <div class="space-y-2 lg:col-span-2">
             <a href="https://wa.me/584141234567" target="_blank" rel="noopener noreferrer"
-               class="reveal group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink">
+               class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-white">
                 <i data-lucide="message-circle" class="h-5 w-5"></i>
               </span>
@@ -770,7 +823,7 @@
             </a>
 
             <a href="mailto:info@vidriosmundial.com"
-               class="reveal group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 100ms;">
+               class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 100ms;">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
                 <i data-lucide="mail" class="h-5 w-5"></i>
               </span>
@@ -782,7 +835,7 @@
             </a>
 
             <a href="https://instagram.com/vidriosmundial" target="_blank" rel="noopener noreferrer"
-               class="reveal group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 200ms;">
+               class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 200ms;">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
                 <i data-lucide="instagram" class="h-5 w-5"></i>
               </span>
@@ -793,7 +846,7 @@
               <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
             </a>
 
-            <div class="reveal flex items-center gap-5 rounded-2xl border border-fog bg-white p-6" style="--reveal-delay: 300ms;">
+            <div class="reveal card-shadow flex items-center gap-5 rounded-2xl border border-fog bg-white p-6" style="--reveal-delay: 300ms;">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
                 <i data-lucide="map-pin" class="h-5 w-5"></i>
               </span>
@@ -952,13 +1005,37 @@
         }, { once: true });
       } else {
         let scrollTicking = false;
+        let seeking = false;
+        let pendingTime = null;
+        let cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
+
+        heroScrollVideo.addEventListener('seeked', () => {
+          seeking = false;
+          if (pendingTime !== null) {
+            heroScrollVideo.currentTime = pendingTime;
+            pendingTime = null;
+            seeking = true;
+          }
+        });
+
+        window.addEventListener('resize', () => {
+          cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
+        }, { passive: true });
+
         const updateScrollVideo = () => {
           const rect = heroScrollWrapper.getBoundingClientRect();
-          const scrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
-          const progress = Math.max(0, Math.min(1, -rect.top / scrollable));
+          const progress = Math.max(0, Math.min(1, -rect.top / cachedScrollable));
 
           if (heroScrollVideo.duration) {
-            heroScrollVideo.currentTime = progress * heroScrollVideo.duration;
+            const targetTime = progress * heroScrollVideo.duration;
+            if (Math.abs(heroScrollVideo.currentTime - targetTime) < 0.05) {
+              // already there — skip seek
+            } else if (seeking) {
+              pendingTime = targetTime;
+            } else {
+              heroScrollVideo.currentTime = targetTime;
+              seeking = true;
+            }
           }
 
           const textOpacity = Math.max(0, Math.min(1, (progress - 0.7) / 0.25));
@@ -974,13 +1051,21 @@
           }
         }, { passive: true });
 
-        heroScrollVideo.addEventListener('loadedmetadata', updateScrollVideo, { once: true });
+        heroScrollVideo.addEventListener('loadedmetadata', () => {
+          cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
+          updateScrollVideo();
+        }, { once: true });
       }
     }
 
-    // ——— Navbar scrolled state ———
+    // ——— Navbar scrolled state (stays transparent through the whole hero video, solid once past it) ———
     const navbar = document.getElementById('navbar');
-    const onScroll = () => navbar.classList.toggle('scrolled', window.scrollY > 24);
+    const onScroll = () => {
+      const heroHeight = heroScrollWrapper ? heroScrollWrapper.offsetHeight : 0;
+      const heroBottom = Math.max(heroHeight - window.innerHeight, 24);
+      const pastHero = window.scrollY > heroBottom - 8;
+      navbar.classList.toggle('scrolled', pastHero);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
