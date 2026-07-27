@@ -19,3 +19,8 @@ npm-debug.log*
 .DS_Store
 .vscode/
 .idea/
+
+# Google Forms API (secretos / venv)
+credentials.json
+token.pickle
+.venv_forms/

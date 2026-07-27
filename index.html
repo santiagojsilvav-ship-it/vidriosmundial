@@ -194,6 +194,29 @@
       outline-offset: 3px;
     }
 
+    /* ——— Scroll-scrub hero ——— */
+    #hero-scroll-wrapper {
+      position: relative;
+      height: 300vh;
+    }
+    .hero-scroll-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+      overflow: hidden;
+    }
+    #hero-scroll-overlay {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .hero-scroll-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 40%, transparent 70%);
+      pointer-events: none;
+    }
+
     /* ——— Reduced motion ——— */
     @media (prefers-reduced-motion: reduce) {
       .reveal {
@@ -233,6 +256,13 @@
       }
       .project-figure .img-zoom img {
         transform: none;
+      }
+      #hero-scroll-wrapper {
+        height: 100vh;
+      }
+      #hero-scroll-overlay {
+        opacity: 1 !important;
+        transition: none;
       }
       html {
         scroll-behavior: auto;
@@ -283,69 +313,55 @@
   <main id="inicio">
 
     <!-- ============================================================
-         HERO — split layout
+         HERO — scroll-scrub full-bleed video
     ============================================================= -->
-    <section class="relative grid min-h-screen grid-cols-1 overflow-hidden bg-[#f8f8f6] lg:grid-cols-2">
+    <section id="hero-scroll-wrapper">
+      <div class="hero-scroll-sticky">
+        <video
+          id="hero-scroll-video"
+          muted
+          playsinline
+          webkit-playsinline
+          preload="auto"
+          poster="./images/hero-scroll-poster.jpg"
+          class="h-full w-full object-cover"
+          style="position:absolute;inset:0;"
+        >
+          <!--
+            TODO [MOBILE 9:16]: Serve a portrait-cropped video on narrow screens.
+            Option A — <source> with media attribute (limited browser support):
+              <source src="./images/hero-scroll-vertical.mp4" type="video/mp4" media="(max-width: 768px)">
+            Option B — JS swap: detect window.innerWidth < 768 and set
+              heroScrollVideo.src = './images/hero-scroll-vertical.mp4';
+            before the scroll listener runs.
+          -->
+          <source src="./images/hero-scroll.mp4" type="video/mp4">
+        </video>
 
-        <!-- Left: content -->
-        <div class="order-2 flex items-center bg-[#f8f8f6] px-6 pb-16 pt-12 lg:order-1 lg:px-12 lg:pb-24 lg:pt-36 xl:px-16">
-          <div class="w-full max-w-xl">
-            <p class="reveal mb-6 text-xs font-bold uppercase tracking-widest2 text-ink/50">
+        <div id="hero-scroll-overlay" class="absolute inset-0 flex items-end">
+          <div class="hero-scroll-scrim"></div>
+          <div class="relative z-10 w-full max-w-3xl px-6 pb-16 lg:px-16 lg:pb-24">
+            <p class="mb-4 text-xs font-bold uppercase tracking-widest2 text-white/70">
               Caracas · Venezuela
             </p>
-            <h1 class="font-display text-4xl font-light leading-[1.05] tracking-tight text-ink md:text-5xl lg:text-6xl xl:text-7xl">
-              <span class="hero-word" style="animation-delay: 100ms;">Soluciones</span>
-              <span class="hero-word" style="animation-delay: 220ms;"><em class="font-normal italic">Premium</em></span>
-              <span class="hero-word" style="animation-delay: 340ms;">en</span>
-              <span class="hero-word" style="animation-delay: 460ms;">Vidrio</span>
-              <span class="hero-word" style="animation-delay: 580ms;">y</span>
-              <span class="hero-word" style="animation-delay: 700ms;">Aluminio</span>
+            <h1 class="font-display text-4xl font-light leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl xl:text-7xl">
+              Soluciones <em class="font-normal italic">Premium</em> en Vidrio y Aluminio
             </h1>
-            <p class="reveal mt-8 max-w-xl text-base leading-relaxed text-ink/60 md:text-lg" style="--reveal-delay: 200ms;">
+            <p class="mt-6 max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
               Desde 1972 transformando la arquitectura venezolana con precisión, calidad y excelencia en cada detalle.
             </p>
-
-            <div class="reveal mt-10 flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center" style="--reveal-delay: 300ms;">
-              <a href="#contacto" class="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-ink/80">
+            <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <a href="#contacto" class="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-semibold text-ink transition-colors duration-200 hover:bg-white/90">
                 Solicitar cotización
                 <i data-lucide="arrow-right" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"></i>
               </a>
-              <a href="#proyectos" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-ink/30 px-8 py-4 text-sm font-semibold text-ink transition-colors duration-200 hover:border-ink hover:bg-ink hover:text-white">
+              <a href="#proyectos" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/40 px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/10">
                 Ver proyectos
               </a>
             </div>
-
-            <div class="reveal mt-16 flex max-w-md items-center gap-10 border-t border-ink/10 pt-8" style="--reveal-delay: 400ms;">
-              <div>
-                <p class="font-display text-3xl font-light text-ink" data-count="50" data-prefix="+">+50</p>
-                <p class="mt-1 text-xs font-medium uppercase tracking-widest text-ink/50">Años de experiencia</p>
-              </div>
-              <div class="h-10 w-px bg-ink/10" aria-hidden="true"></div>
-              <div>
-                <p class="font-display text-3xl font-light text-ink">Bonomi</p>
-                <p class="mt-1 text-xs font-medium uppercase tracking-widest text-ink/50">Representantes oficiales</p>
-              </div>
-            </div>
           </div>
         </div>
-
-        <!-- Right: video on matching background, building floats edge-to-edge on mobile -->
-        <div class="relative order-1 h-[85vh] bg-[#f8f8f6] lg:order-2 lg:h-auto lg:min-h-0">
-          <video
-            id="hero-video"
-            autoplay
-            muted
-            loop
-            playsinline
-            webkit-playsinline
-            preload="auto"
-            poster="./images/edificio3-frame.jpg"
-            style="-webkit-transform:translateZ(0);transform:translateZ(0);"
-            class="absolute inset-0 h-full w-full object-contain object-center">
-            <source src="./images/edificio3-compressed.mp4" type="video/mp4">
-          </video>
-        </div>
-
+      </div>
     </section>
 
     <!-- ============================================================
@@ -924,11 +940,42 @@
       revealEls.forEach((el) => observer.observe(el));
     }
 
-    // ——— Hero video: respect reduced motion ———
-    const heroVideo = document.getElementById('hero-video');
-    if (heroVideo && prefersReducedMotion) {
-      heroVideo.removeAttribute('autoplay');
-      heroVideo.pause();
+    // ——— Hero scroll-scrub ———
+    const heroScrollVideo = document.getElementById('hero-scroll-video');
+    const heroScrollWrapper = document.getElementById('hero-scroll-wrapper');
+    const heroScrollOverlay = document.getElementById('hero-scroll-overlay');
+
+    if (heroScrollVideo && heroScrollWrapper) {
+      if (prefersReducedMotion) {
+        heroScrollVideo.addEventListener('loadedmetadata', () => {
+          heroScrollVideo.currentTime = heroScrollVideo.duration;
+        }, { once: true });
+      } else {
+        let scrollTicking = false;
+        const updateScrollVideo = () => {
+          const rect = heroScrollWrapper.getBoundingClientRect();
+          const scrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
+          const progress = Math.max(0, Math.min(1, -rect.top / scrollable));
+
+          if (heroScrollVideo.duration) {
+            heroScrollVideo.currentTime = progress * heroScrollVideo.duration;
+          }
+
+          const textOpacity = Math.max(0, Math.min(1, (progress - 0.7) / 0.25));
+          heroScrollOverlay.style.opacity = textOpacity;
+
+          scrollTicking = false;
+        };
+
+        window.addEventListener('scroll', () => {
+          if (!scrollTicking) {
+            requestAnimationFrame(updateScrollVideo);
+            scrollTicking = true;
+          }
+        }, { passive: true });
+
+        heroScrollVideo.addEventListener('loadedmetadata', updateScrollVideo, { once: true });
+      }
     }
 
     // ——— Navbar scrolled state ———
@@ -1005,21 +1052,5 @@
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var video = document.getElementById('hero-video');
-    if (video) {
-      video.play().catch(function() {
-        // If autoplay fails, try on first user interaction
-        document.addEventListener('touchstart', function() {
-          video.play();
-        }, {once: true});
-        document.addEventListener('click', function() {
-          video.play();
-        }, {once: true});
-      });
-    }
-  });
-  </script>
 </body>
 </html>
