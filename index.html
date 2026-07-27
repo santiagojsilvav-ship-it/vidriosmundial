@@ -6,10 +6,10 @@
   <title>Vidrios Mundial — Soluciones Premium en Vidrio y Aluminio</title>
   <meta name="description" content="Empresa venezolana fundada en 1972, especializada en vidrio arquitectónico, sistemas de aluminio e instalación integral. Representantes oficiales de Metalglas Bonomi en Venezuela." />
 
-  <!-- Fonts: Manrope (UI) + Fraunces (display serif) -->
+  <!-- Fonts: Inter (UI) + Instrument Serif (display serif) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
 
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -18,8 +18,8 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Manrope', 'sans-serif'],
-            display: ['Fraunces', 'serif'],
+            sans: ['Inter', 'sans-serif'],
+            display: ['Instrument Serif', 'serif'],
           },
           colors: {
             ink: '#0a0a0a',
@@ -240,6 +240,15 @@
       outline-offset: 3px;
     }
 
+    /* ——— Hero typewriter ——— */
+    .hero-typewriter .tw-char {
+      opacity: 0;
+      transition: opacity 0.04s ease;
+    }
+    .hero-typewriter .tw-char.tw-visible {
+      opacity: 1;
+    }
+
     /* ——— Scroll-scrub hero ——— */
     #hero-scroll-wrapper {
       position: relative;
@@ -254,7 +263,7 @@
     }
     #hero-scroll-overlay {
       opacity: 0;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.15s ease;
     }
     .hero-scroll-scrim {
       position: absolute;
@@ -312,6 +321,14 @@
       #hero-scroll-overlay {
         opacity: 1 !important;
         transition: none;
+      }
+      .hero-typewriter .tw-char {
+        opacity: 1 !important;
+      }
+      #hero-buttons,
+      #hero-buttons a {
+        opacity: 1 !important;
+        transform: none !important;
       }
       html {
         scroll-behavior: auto;
@@ -380,21 +397,21 @@
         <div id="hero-scroll-overlay" class="absolute inset-0 flex items-end">
           <div class="hero-scroll-scrim"></div>
           <div class="relative z-10 w-full max-w-3xl px-6 pb-16 lg:px-16 lg:pb-24">
-            <p class="mb-4 text-xs font-bold uppercase tracking-widest2 text-white/70">
+            <p id="hero-eyebrow" class="hero-typewriter mb-4 text-xs font-bold uppercase tracking-widest2 text-white/70">
               Caracas · Venezuela
             </p>
-            <h1 class="font-display text-4xl font-light leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl xl:text-7xl">
+            <h1 id="hero-heading" class="hero-typewriter font-display text-4xl font-light leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl xl:text-7xl">
               Soluciones <em class="font-normal italic">Premium</em> en Vidrio y Aluminio
             </h1>
-            <p class="mt-6 max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
+            <p id="hero-subtitle" class="hero-typewriter mt-6 max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
               Desde 1972 transformando la arquitectura venezolana con precisión, calidad y excelencia en cada detalle.
             </p>
-            <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div id="hero-buttons" class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center" style="opacity:0; transform:translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease;">
               <a href="#contacto" class="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-semibold text-ink transition-colors duration-200 hover:bg-white/90">
                 Solicitar cotización
                 <i data-lucide="arrow-right" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"></i>
               </a>
-              <a href="#proyectos" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/40 px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/10">
+              <a href="#proyectos" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/40 px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/10" style="opacity:0; transform:translateY(16px); transition: opacity 0.5s ease 0.08s, transform 0.5s ease 0.08s;">
                 Ver proyectos
               </a>
             </div>
@@ -995,12 +1012,64 @@
       } else {
         let targetProgress = 0;
         let currentProgress = 0;
-        let currentTextOpacity = 0;
         let seeking = false;
         let pendingTime = null;
         let cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
         let scrubActive = false;
         let rafId = null;
+        let typewriterPlayed = false;
+
+        // ——— Typewriter setup ———
+        const twElements = document.querySelectorAll('.hero-typewriter');
+        const heroButtons = document.getElementById('hero-buttons');
+        const allChars = [];
+
+        const wrapChars = (el) => {
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          const textNodes = [];
+          while (walker.nextNode()) textNodes.push(walker.currentNode);
+          textNodes.forEach(node => {
+            const frag = document.createDocumentFragment();
+            for (const ch of node.textContent) {
+              const span = document.createElement('span');
+              span.className = 'tw-char';
+              span.textContent = ch;
+              frag.appendChild(span);
+              allChars.push(span);
+            }
+            node.parentNode.replaceChild(frag, node);
+          });
+        };
+        twElements.forEach(wrapChars);
+
+        const runTypewriter = () => {
+          const totalChars = allChars.length;
+          const totalDuration = 800;
+          const perChar = totalDuration / totalChars;
+          allChars.forEach((span, i) => {
+            setTimeout(() => span.classList.add('tw-visible'), i * perChar);
+          });
+          setTimeout(() => {
+            heroButtons.style.opacity = '1';
+            heroButtons.style.transform = 'translateY(0)';
+            const secondBtn = heroButtons.querySelector('a:last-child');
+            if (secondBtn) {
+              secondBtn.style.opacity = '1';
+              secondBtn.style.transform = 'translateY(0)';
+            }
+          }, totalDuration);
+        };
+
+        const resetTypewriter = () => {
+          allChars.forEach(span => span.classList.remove('tw-visible'));
+          heroButtons.style.opacity = '0';
+          heroButtons.style.transform = 'translateY(16px)';
+          const secondBtn = heroButtons.querySelector('a:last-child');
+          if (secondBtn) {
+            secondBtn.style.opacity = '0';
+            secondBtn.style.transform = 'translateY(16px)';
+          }
+        };
 
         heroScrollVideo.addEventListener('seeked', () => {
           seeking = false;
@@ -1036,9 +1105,15 @@
             }
           }
 
-          const rawOpacity = Math.max(0, Math.min(1, (currentProgress - 0.7) / 0.25));
-          currentTextOpacity += (rawOpacity - currentTextOpacity) * 0.15;
-          heroScrollOverlay.style.opacity = currentTextOpacity;
+          const overlayVisible = currentProgress >= 0.7;
+          heroScrollOverlay.style.opacity = overlayVisible ? 1 : 0;
+          if (overlayVisible && !typewriterPlayed) {
+            typewriterPlayed = true;
+            runTypewriter();
+          } else if (!overlayVisible && typewriterPlayed) {
+            typewriterPlayed = false;
+            resetTypewriter();
+          }
 
           rafId = requestAnimationFrame(lerpLoop);
         };
