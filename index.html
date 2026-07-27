@@ -27,6 +27,7 @@
             mist: '#f7f7f7',
             fog: '#e8eaed',
             silver: '#9ca3af',
+            accent: '#004480',
           },
           letterSpacing: {
             widest2: '0.25em',
@@ -167,7 +168,8 @@
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.6);
       border-top-color: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 4px 24px rgba(10, 10, 10, 0.06);
+      box-shadow: 0 4px 24px rgba(10, 10, 10, 0.06),
+                  inset 0 0 0 1px rgba(0, 68, 128, 0.04);
     }
 
     /* ——— Project image scale reveal ——— */
@@ -219,12 +221,6 @@
       background-color: transparent;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
-    }
-    #navbar:not(.scrolled) .nav-link {
-      color: rgba(255, 255, 255, 0.85);
-    }
-    #navbar:not(.scrolled) .nav-link:hover {
-      color: #ffffff;
     }
     #navbar:not(.scrolled) .nav-logo img {
       filter: brightness(0) invert(1);
@@ -329,30 +325,20 @@
   <!-- ============================================================
        NAV
   ============================================================= -->
-  <header id="navbar" class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-white/80 backdrop-blur-md transition-all duration-300 lg:bg-transparent lg:backdrop-blur-none">
+  <header id="navbar" class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-white/80 backdrop-blur-md transition-all duration-300">
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-10" aria-label="Navegación principal">
       <a href="#inicio" class="nav-logo inline-flex items-center transition-opacity duration-300 hover:opacity-80">
         <img src="./images/logo.png" alt="Vidrios Mundial" class="h-[34px] w-auto lg:h-10" />
       </a>
 
-      <div class="hidden items-center gap-10 lg:flex">
-        <a href="#servicios" class="nav-link link-line text-lg font-semibold text-ink/70 transition-colors duration-200 hover:text-ink">Servicios</a>
-        <a href="#proyectos" class="nav-link link-line text-lg font-semibold text-ink/70 transition-colors duration-200 hover:text-ink">Proyectos</a>
-        <a href="#nosotros" class="nav-link link-line text-lg font-semibold text-ink/70 transition-colors duration-200 hover:text-ink">Nosotros</a>
-        <a href="#contacto" class="nav-link link-line text-lg font-semibold text-ink/70 transition-colors duration-200 hover:text-ink">Contacto</a>
-        <a href="#contacto" class="cursor-pointer rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-ink/80">
-          Cotizar
-        </a>
-      </div>
-
-      <button id="menu-btn" class="cursor-pointer p-2 text-ink transition-colors duration-300 lg:hidden" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
+      <button id="menu-btn" class="cursor-pointer p-2 text-ink transition-colors duration-300" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
         <i data-lucide="menu" class="h-7 w-7" id="menu-icon-open"></i>
         <i data-lucide="x" class="hidden h-8 w-8" id="menu-icon-close"></i>
       </button>
     </nav>
 
     <!-- Mobile menu -->
-    <div id="mobile-menu" class="hidden border-t border-ink/10 bg-[#f8f8f6] px-6 pb-10 pt-2 lg:hidden">
+    <div id="mobile-menu" class="hidden border-t border-ink/10 bg-[#f8f8f6] px-6 pb-10 pt-2">
       <div class="flex flex-col">
         <a href="#servicios" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Servicios</a>
         <a href="#proyectos" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Proyectos</a>
@@ -694,22 +680,22 @@
             </li>
           </ul>
 
-          <div class="reveal-left mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-fog bg-fog" style="--reveal-delay: 400ms;">
-            <div class="glass-card p-6">
-              <p class="font-display text-3xl font-light text-ink" data-count="50" data-prefix="+">+50</p>
-              <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Años de trayectoria</p>
+          <div class="reveal-left mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-accent/10 bg-fog" style="--reveal-delay: 400ms;">
+            <div class="glass-card px-6 py-8 md:px-8 md:py-10">
+              <p class="font-display text-5xl font-light text-accent md:text-6xl lg:text-7xl" data-count="50" data-prefix="+">+50</p>
+              <p class="mt-3 text-xs font-medium uppercase tracking-widest text-silver">Años de trayectoria</p>
             </div>
-            <div class="glass-card p-6">
-              <p class="font-display text-3xl font-light text-ink" data-count="1972">1972</p>
-              <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Año de fundación</p>
+            <div class="glass-card px-6 py-8 md:px-8 md:py-10">
+              <p class="font-display text-5xl font-light text-accent md:text-6xl lg:text-7xl" data-count="1972">1972</p>
+              <p class="mt-3 text-xs font-medium uppercase tracking-widest text-silver">Año de fundación</p>
             </div>
-            <div class="glass-card p-6">
-              <p class="font-display text-3xl font-light text-ink" data-count="3">3</p>
-              <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Líneas estratégicas</p>
+            <div class="glass-card px-6 py-8 md:px-8 md:py-10">
+              <p class="font-display text-5xl font-light text-accent md:text-6xl lg:text-7xl" data-count="3">3</p>
+              <p class="mt-3 text-xs font-medium uppercase tracking-widest text-silver">Líneas estratégicas</p>
             </div>
-            <div class="glass-card p-6">
-              <p class="font-display text-3xl font-light text-ink" data-count="2017">2017</p>
-              <p class="mt-1 text-xs font-medium uppercase tracking-widest text-silver">Instalación integral</p>
+            <div class="glass-card px-6 py-8 md:px-8 md:py-10">
+              <p class="font-display text-5xl font-light text-accent md:text-6xl lg:text-7xl" data-count="2017">2017</p>
+              <p class="mt-3 text-xs font-medium uppercase tracking-widest text-silver">Instalación integral</p>
             </div>
           </div>
         </div>
@@ -999,15 +985,22 @@
     const heroScrollOverlay = document.getElementById('hero-scroll-overlay');
 
     if (heroScrollVideo && heroScrollWrapper) {
+      heroScrollVideo.muted = true;
+      heroScrollVideo.playsInline = true;
+
       if (prefersReducedMotion) {
         heroScrollVideo.addEventListener('loadedmetadata', () => {
           heroScrollVideo.currentTime = heroScrollVideo.duration;
         }, { once: true });
       } else {
-        let scrollTicking = false;
+        let targetProgress = 0;
+        let currentProgress = 0;
+        let currentTextOpacity = 0;
         let seeking = false;
         let pendingTime = null;
         let cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
+        let scrubActive = false;
+        let rafId = null;
 
         heroScrollVideo.addEventListener('seeked', () => {
           seeking = false;
@@ -1022,14 +1015,19 @@
           cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
         }, { passive: true });
 
-        const updateScrollVideo = () => {
+        const readScroll = () => {
           const rect = heroScrollWrapper.getBoundingClientRect();
-          const progress = Math.max(0, Math.min(1, -rect.top / cachedScrollable));
+          targetProgress = Math.max(0, Math.min(1, -rect.top / cachedScrollable));
+        };
+
+        const lerpLoop = () => {
+          currentProgress += (targetProgress - currentProgress) * 0.12;
+          if (Math.abs(currentProgress - targetProgress) < 0.0005) currentProgress = targetProgress;
 
           if (heroScrollVideo.duration) {
-            const targetTime = progress * heroScrollVideo.duration;
+            const targetTime = currentProgress * heroScrollVideo.duration;
             if (Math.abs(heroScrollVideo.currentTime - targetTime) < 0.05) {
-              // already there — skip seek
+              // already there
             } else if (seeking) {
               pendingTime = targetTime;
             } else {
@@ -1038,23 +1036,54 @@
             }
           }
 
-          const textOpacity = Math.max(0, Math.min(1, (progress - 0.7) / 0.25));
-          heroScrollOverlay.style.opacity = textOpacity;
+          const rawOpacity = Math.max(0, Math.min(1, (currentProgress - 0.7) / 0.25));
+          currentTextOpacity += (rawOpacity - currentTextOpacity) * 0.15;
+          heroScrollOverlay.style.opacity = currentTextOpacity;
 
-          scrollTicking = false;
+          rafId = requestAnimationFrame(lerpLoop);
         };
 
-        window.addEventListener('scroll', () => {
-          if (!scrollTicking) {
-            requestAnimationFrame(updateScrollVideo);
-            scrollTicking = true;
-          }
-        }, { passive: true });
-
-        heroScrollVideo.addEventListener('loadedmetadata', () => {
+        const activateScrub = () => {
+          if (scrubActive) return;
+          scrubActive = true;
           cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
-          updateScrollVideo();
-        }, { once: true });
+          readScroll();
+          currentProgress = targetProgress;
+
+          window.addEventListener('scroll', readScroll, { passive: true });
+          rafId = requestAnimationFrame(lerpLoop);
+        };
+
+        // Prime Safari's decoder pipeline
+        const primeAndWait = () => {
+          const playPromise = heroScrollVideo.play();
+          if (playPromise) {
+            playPromise.then(() => {
+              heroScrollVideo.pause();
+              heroScrollVideo.currentTime = 0;
+            }).catch(() => {
+              heroScrollVideo.pause();
+              heroScrollVideo.currentTime = 0;
+            });
+          } else {
+            heroScrollVideo.pause();
+            heroScrollVideo.currentTime = 0;
+          }
+        };
+
+        if (heroScrollVideo.readyState >= 4) {
+          primeAndWait();
+          activateScrub();
+        } else {
+          heroScrollVideo.addEventListener('canplaythrough', () => {
+            primeAndWait();
+            activateScrub();
+          }, { once: true });
+          // Fallback if canplaythrough never fires (some browsers)
+          heroScrollVideo.addEventListener('loadedmetadata', () => {
+            setTimeout(() => { if (!scrubActive) activateScrub(); }, 1000);
+          }, { once: true });
+        }
       }
     }
 
