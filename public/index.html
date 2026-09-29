@@ -3,6 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script>
+    // Scroll-animation start states only apply under html.js, set here before the first paint so
+    // nothing flashes. If the main script never gets to initialise them (error, blocked), drop the
+    // class on load so the content is visible instead of stuck hidden.
+    document.documentElement.classList.add('js');
+    window.addEventListener('load', function () {
+      if (!window.__vmMotionReady) document.documentElement.classList.remove('js');
+    });
+  </script>
   <title>Vidrios Mundial — Soluciones Premium en Vidrio y Aluminio</title>
   <meta name="description" content="Empresa venezolana fundada en 1972, especializada en vidrio arquitectónico, sistemas de aluminio e instalación integral. Representantes oficiales de Metalglas Bonomi en Venezuela." />
   <link rel="canonical" href="https://vidriosmundial.vercel.app/" />
@@ -54,38 +63,99 @@
       background-size: 256px 256px;
     }
 
-    /* ——— Reveal on scroll ——— */
-    .reveal {
+    /* ——— Scroll animations ———
+       Elements declare their entrance with data-anim. The hidden start state only exists under
+       html.js (added by the inline script in <head>), so without JS — or if the main script fails,
+       see the load fallback there — everything is simply visible, never stuck hidden.
+       Only opacity, transform and clip-path are animated: no layout shift.
+         eyebrow  small uppercase labels: fade + 16px rise, plus a short line that draws itself
+         title    serif section titles: word-by-word "writing" (each word rises out of a mask)
+         fade-up  paragraphs, lists, forms, footer columns: fade + 16px rise
+         card     service cards / small items: fade + 16px rise + tiny scale, one after another
+         left / right  "Nosotros": enters from the sides
+         mask     photos: clip-path opens upwards while the photo settles from 1.08 to 1
+         button   CTAs: appear last, with a small scale-in
+         rule     divider lines that draw from left to right
+       Stagger: elements that enter together get increasing --d delays (JS, in document order).
+       When an entrance ends, JS removes data-anim so the element's own hover transitions return.
+       prefers-reduced-motion: see the block at the end of this stylesheet. */
+    :root {
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .js [data-anim] {
       opacity: 0;
-      transform: translateY(28px) scale(0.97);
-      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-                  transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-      transition-delay: var(--reveal-delay, 0ms);
-      will-change: opacity, transform;
+      transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+      transition-delay: var(--d, 0ms);
     }
-    .reveal.is-visible {
+    .js [data-anim="eyebrow"],
+    .js [data-anim="fade-up"] { transform: translate3d(0, 16px, 0); }
+    .js [data-anim="card"] { transform: translate3d(0, 16px, 0) scale(0.985); }
+    .js [data-anim="left"] { transform: translate3d(-40px, 0, 0); }
+    .js [data-anim="right"] { transform: translate3d(40px, 0, 0); }
+    .js [data-anim="button"] {
+      transform: translate3d(0, 12px, 0) scale(0.96);
+      transition-delay: calc(var(--d, 0ms) + 180ms);
+    }
+    .js [data-anim="mask"] {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      clip-path: inset(100% 0 0 0 round 1rem);
+      transition: clip-path 1.3s var(--ease);
+      transition-delay: var(--d, 0ms);
     }
+    .js [data-anim="mask"] img {
+      transform: scale(1.08);
+      transition: transform 1.8s var(--ease);
+      transition-delay: var(--d, 0ms);
+    }
+    .js [data-anim="rule"] {
+      opacity: 1;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 1.4s var(--ease);
+      transition-delay: var(--d, 0ms);
+    }
+    .js [data-anim].is-in { opacity: 1; transform: none; }
+    .js [data-anim="mask"].is-in { clip-path: inset(0 0 0 0 round 1rem); }
+    .js [data-anim="mask"].is-in img { transform: scale(1); }
 
-    /* ——— Glass reflection sweep (hero) ——— */
-    .glass-shimmer::after {
+    /* Eyebrow line (permanent decoration; it only draws itself while data-anim is present) */
+    .eyebrow::before {
       content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: 60%;
-      background: linear-gradient(105deg, transparent 0%, rgba(255, 255, 255, 0.22) 50%, transparent 100%);
-      transform: translateX(-160%) skewX(-15deg);
-      animation: glass-sweep 9s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 1;
+      display: inline-block;
+      width: 1.75rem;
+      height: 1px;
+      margin-right: 0.75rem;
+      vertical-align: middle;
+      background-color: currentColor;
+      opacity: 0.7;
     }
-    @keyframes glass-sweep {
-      0%, 60% { transform: translateX(-160%) skewX(-15deg); }
-      80%, 100% { transform: translateX(360%) skewX(-15deg); }
+    .js [data-anim="eyebrow"]::before {
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 1s var(--ease);
+      transition-delay: calc(var(--d, 0ms) + 150ms);
     }
+    .js [data-anim="eyebrow"].is-in::before { transform: none; }
+
+    /* Titles: JS wraps each word in .w > span; the container is hidden until it has been split */
+    .js [data-anim="title"] { transform: none; transition: opacity 0.6s var(--ease); }
+    .js [data-anim="title"].is-split { opacity: 1; }
+    .js [data-anim="title"] .w {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: top;
+      /* room for italic overhang and descenders inside the mask */
+      padding: 0 0.06em 0.16em;
+      margin: 0 -0.06em -0.16em;
+    }
+    .js [data-anim="title"] .w > span {
+      display: inline-block;
+      opacity: 0;
+      transform: translate3d(0, 105%, 0);
+      transition: transform 1s var(--ease), opacity 1s var(--ease);
+      transition-delay: calc(var(--d, 0ms) + var(--i, 0) * 60ms);
+    }
+    .js [data-anim="title"].is-in .w > span { opacity: 1; transform: none; }
 
     /* ——— Mobile menu fade-in ——— */
     #mobile-menu:not(.hidden) {
@@ -94,43 +164,6 @@
     @keyframes menu-fade-in {
       from { opacity: 0; transform: translateY(-10px); }
       to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ——— Hero headline word entrance ——— */
-    .hero-word {
-      display: inline-block;
-      opacity: 0;
-      transform: translateY(24px);
-      animation: word-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-    @keyframes word-in {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ——— Hero slow zoom loop ——— */
-    .hero-zoom {
-      animation: hero-zoom 8s ease-in-out infinite alternate;
-    }
-    @keyframes hero-zoom {
-      from { transform: scale(1); }
-      to { transform: scale(1.04); }
-    }
-
-    /* ——— Directional reveals (Nosotros) ——— */
-    .reveal-left,
-    .reveal-right {
-      opacity: 0;
-      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
-                  transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-      transition-delay: var(--reveal-delay, 0ms);
-      will-change: opacity, transform;
-    }
-    .reveal-left { transform: translateX(-36px) scale(0.97); }
-    .reveal-right { transform: translateX(36px) scale(0.97); }
-    .reveal-left.is-visible,
-    .reveal-right.is-visible {
-      opacity: 1;
-      transform: translateX(0) scale(1);
     }
 
     /* ——— Service card lift hover ——— */
@@ -165,11 +198,6 @@
       box-shadow: 0 4px 24px rgba(10, 10, 10, 0.06),
                   inset 0 0 0 1px rgba(0, 68, 128, 0.04);
     }
-
-    /* ——— Project image scale reveal ——— */
-    .project-figure .img-zoom img { transform: scale(1.08); }
-    .project-figure.is-visible .img-zoom img { transform: scale(1); }
-    .project-figure.is-visible .img-zoom:hover img { transform: scale(1.05); }
 
     /* ——— Image zoom on hover ——— */
     .img-zoom img {
@@ -284,69 +312,41 @@
       pointer-events: none;
     }
 
-    /* ——— Reduced motion ——— */
+    /* ——— Reduced motion ———
+       With "Reduce Motion" on (iOS, macOS, Android, Windows) the site must still feel alive, so this
+       tones animation down instead of switching it off:
+         kept      the scroll-driven hero (the user drives it with their own scroll), fades, the
+                   short 16px rises and the clip-path photo reveal: small, slow and non-vestibular.
+         toned down  word/letter "writing" effects -> the text fades in as a whole (JS skips the
+                   split), entrances from the sides -> the same short rise, the 1.08 photo zoom
+                   and hover zooms/lifts -> off, animated counters -> final number (JS), smooth
+                   anchor scrolling -> instant.
+       Why: large lateral travel, zooms and rapid per-letter motion are the classic triggers for
+       motion sensitivity; opacity and very short vertical moves are not. */
     @media (prefers-reduced-motion: reduce) {
-      body::after {
-        display: none;
+      html {
+        scroll-behavior: auto;
       }
-      .reveal {
-        opacity: 1;
-        transform: none;
-        transition: none;
+      .js [data-anim="left"],
+      .js [data-anim="right"] {
+        transform: translate3d(0, 16px, 0);
       }
+      .js [data-anim="mask"] img,
+      .js [data-anim="mask"].is-in img,
       .img-zoom img,
-      .link-line::after {
-        transition: none;
-      }
-      .glass-shimmer::after {
-        animation: none;
-        opacity: 0;
-      }
-      #mobile-menu:not(.hidden) {
-        animation: none;
-      }
-      .hero-word {
-        animation: none;
-        opacity: 1;
-        transform: none;
-      }
-      .hero-zoom {
-        animation: none;
-      }
-      .reveal-left,
-      .reveal-right {
-        opacity: 1;
+      .img-zoom:hover img {
         transform: none;
         transition: none;
       }
       .service-card,
       .service-card:hover {
         transform: none;
-        transition: none;
-      }
-      .project-figure .img-zoom img {
-        transform: none;
-      }
-      #hero-scroll-wrapper {
-        height: 100vh;
       }
       #hero-scroll-overlay {
-        opacity: 1 !important;
-        transition: none;
+        transition: opacity 0.6s ease;
       }
-      .hero-typewriter .tw-char {
-        opacity: 1 !important;
-      }
-      #hero-buttons,
-      #hero-buttons a {
-        opacity: 1 !important;
-        transform: none !important;
-      }
-      html {
-        scroll-behavior: auto;
-      }
-      .wa-float {
-        transition: none;
+      #mobile-menu:not(.hidden) {
+        animation: none;
       }
     }
   </style>
@@ -389,14 +389,12 @@
     <!-- ============================================================
          HERO — scroll-scrub full-bleed image sequence (canvas)
          Frames: images/hero-frames/v1/{desktop 1600×900 ×150, mobile 608×1080 ×114}
-         The <picture> paints the first frame instantly (and the last
-         frame with reduced motion); the canvas takes over once frames load.
+         The <picture> paints the first frame instantly; the canvas takes over once frames load.
+         The scrub also runs with prefers-reduced-motion: the user drives it with their own scroll.
     ============================================================= -->
     <section id="hero-scroll-wrapper">
       <div class="hero-scroll-sticky">
         <picture>
-          <source media="(prefers-reduced-motion: reduce) and (max-aspect-ratio: 3/5)" srcset="./images/hero-frames/v1/mobile/113.webp">
-          <source media="(prefers-reduced-motion: reduce)" srcset="./images/hero-frames/v1/desktop/149.webp">
           <source media="(max-aspect-ratio: 3/5)" srcset="./images/hero-frames/v1/mobile/000.webp">
           <img
             id="hero-scroll-fallback"
@@ -442,11 +440,11 @@
       <div class="mx-auto max-w-7xl px-6 lg:px-10">
 
         <div class="mb-16 max-w-2xl md:mb-20">
-          <p class="reveal mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Servicios</p>
-          <h2 class="reveal font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl" style="--reveal-delay: 100ms;">
+          <p data-anim="eyebrow" class="eyebrow mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Servicios</p>
+          <h2 data-anim="title" class="font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl">
             Especialistas en cada <em class="font-normal italic">superficie</em>
           </h2>
-          <p class="reveal mt-6 text-base leading-relaxed text-ink/60" style="--reveal-delay: 200ms;">
+          <p data-anim="fade-up" class="mt-6 text-base leading-relaxed text-ink/60">
             Soluciones integrales en vidrio y aluminio para proyectos residenciales, comerciales e institucionales de alta complejidad.
           </p>
         </div>
@@ -454,7 +452,7 @@
         <div class="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-fog bg-fog sm:grid-cols-2 lg:grid-cols-3">
 
           <!-- Card 1 -->
-          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
+          <article data-anim="card" class="service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
             <div class="mb-8 flex items-start justify-between">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-flame h-7 w-7 text-ink"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg>
               <span class="font-display text-sm italic text-silver">01</span>
@@ -466,7 +464,7 @@
           </article>
 
           <!-- Card 2 -->
-          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 80ms;">
+          <article data-anim="card" class="service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
             <div class="mb-8 flex items-start justify-between">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-layers h-7 w-7 text-ink"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"></path><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path></svg>
               <span class="font-display text-sm italic text-silver">02</span>
@@ -478,7 +476,7 @@
           </article>
 
           <!-- Card 3 -->
-          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 160ms;">
+          <article data-anim="card" class="service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
             <div class="mb-8 flex items-start justify-between">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-sun-snow h-7 w-7 text-ink"><path d="M10 21v-1"></path><path d="M10 4V3"></path><path d="M10 9a3 3 0 0 0 0 6"></path><path d="m14 20 1.25-2.5L18 18"></path><path d="m14 4 1.25 2.5L18 6"></path><path d="m17 21-3-6 1.5-3H22"></path><path d="m17 3-3 6 1.5 3"></path><path d="M2 12h1"></path><path d="m20 10-1.5 2 1.5 2"></path><path d="m3.64 18.36.7-.7"></path><path d="m4.34 6.34-.7-.7"></path></svg>
               <span class="font-display text-sm italic text-silver">03</span>
@@ -490,7 +488,7 @@
           </article>
 
           <!-- Card 4 -->
-          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 240ms;">
+          <article data-anim="card" class="service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
             <div class="mb-8 flex items-start justify-between">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-shield-check h-7 w-7 text-ink"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
               <span class="font-display text-sm italic text-silver">04</span>
@@ -502,7 +500,7 @@
           </article>
 
           <!-- Card 5 -->
-          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 320ms;">
+          <article data-anim="card" class="service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
             <div class="mb-8 flex items-start justify-between">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-wind h-7 w-7 text-ink"><path d="M12.8 19.6A2 2 0 1 0 14 16H2"></path><path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"></path><path d="M9.8 4.4A2 2 0 1 1 11 8H2"></path></svg>
               <span class="font-display text-sm italic text-silver">05</span>
@@ -514,7 +512,7 @@
           </article>
 
           <!-- Card 6 -->
-          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 400ms;">
+          <article data-anim="card" class="service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
             <div class="mb-8 flex items-start justify-between">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-blinds h-7 w-7 text-ink"><path d="M3 3h18"></path><path d="M20 7H8"></path><path d="M20 11H8"></path><path d="M10 19h10"></path><path d="M8 15h12"></path><path d="M4 3v14"></path><circle cx="4" cy="19" r="2"></circle></svg>
               <span class="font-display text-sm italic text-silver">06</span>
@@ -526,7 +524,7 @@
           </article>
 
           <!-- Card 7 -->
-          <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 480ms;">
+          <article data-anim="card" class="service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
             <div class="mb-8 flex items-start justify-between">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-fence h-7 w-7 text-ink"><path d="M4 3 2 5v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z"></path><path d="M6 8h4"></path><path d="M6 18h4"></path><path d="m12 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z"></path><path d="M14 8h4"></path><path d="M14 18h4"></path><path d="m20 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z"></path></svg>
               <span class="font-display text-sm italic text-silver">07</span>
@@ -538,14 +536,14 @@
           </article>
 
           <!-- Card CTA -->
-          <article class="reveal flex flex-col justify-between bg-mist p-8 md:p-10 lg:col-span-2" style="--reveal-delay: 560ms;">
+          <article data-anim="fade-up" class="flex flex-col justify-between bg-mist p-8 md:p-10 lg:col-span-2">
             <div>
               <h3 class="font-display text-2xl font-normal text-ink">¿Tiene un proyecto en mente?</h3>
               <p class="mt-3 max-w-md text-sm leading-relaxed text-ink/60">
                 Nuestro equipo le asesora en la especificación técnica de la solución ideal para su obra.
               </p>
             </div>
-            <a href="#contacto" class="link-line mt-8 w-fit cursor-pointer text-sm font-semibold text-ink">
+            <a data-anim="button" href="#contacto" class="link-line mt-8 w-fit cursor-pointer text-sm font-semibold text-ink">
               Solicitar asesoría →
             </a>
           </article>
@@ -557,33 +555,34 @@
     <!-- ============================================================
          CALIDAD CERTIFICADA — strip
     ============================================================= -->
-    <section class="border-t border-fog bg-paper py-14 md:py-16">
+    <section class="relative bg-paper py-14 md:py-16">
+      <div data-anim="rule" aria-hidden="true" class="absolute inset-x-0 top-0 h-px bg-fog"></div>
       <div class="mx-auto max-w-7xl px-6 lg:px-10">
-        <p class="reveal mb-10 text-center text-xs font-bold uppercase tracking-widest2 text-silver">Calidad Certificada</p>
+        <p data-anim="eyebrow" class="eyebrow mb-10 text-center text-xs font-bold uppercase tracking-widest2 text-silver">Calidad Certificada</p>
         <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
 
-          <div class="reveal flex items-center gap-4">
+          <div data-anim="card" class="flex items-center gap-4">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-file-check h-5 w-5 text-ink"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="m9 15 2 2 4-4"></path></svg>
             </span>
             <p class="text-sm font-semibold leading-snug text-ink">ANSI Z97.1 / EN 12150</p>
           </div>
 
-          <div class="reveal flex items-center gap-4" style="--reveal-delay: 100ms;">
+          <div data-anim="card" class="flex items-center gap-4">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-shield h-5 w-5 text-ink"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>
             </span>
             <p class="text-sm font-semibold leading-snug text-ink">Protección Balística Certificada</p>
           </div>
 
-          <div class="reveal flex items-center gap-4" style="--reveal-delay: 200ms;">
+          <div data-anim="card" class="flex items-center gap-4">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-handshake h-5 w-5 text-ink"><path d="m11 17 2 2a1 1 0 1 0 3-3"></path><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"></path><path d="m21 3 1 11h-2"></path><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"></path><path d="M3 4h8"></path></svg>
             </span>
             <p class="text-sm font-semibold leading-snug text-ink">Representantes Oficiales Metalglas Bonomi</p>
           </div>
 
-          <div class="reveal flex items-center gap-4" style="--reveal-delay: 300ms;">
+          <div data-anim="card" class="flex items-center gap-4">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-award h-5 w-5 text-ink"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg>
             </span>
@@ -602,12 +601,12 @@
 
         <div class="mb-16 flex flex-col gap-6 md:mb-20 md:flex-row md:items-end md:justify-between">
           <div class="max-w-2xl">
-            <p class="reveal mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Proyectos</p>
-            <h2 class="reveal font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl" style="--reveal-delay: 100ms;">
+            <p data-anim="eyebrow" class="eyebrow mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Proyectos</p>
+            <h2 data-anim="title" class="font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl">
               Obra que habla por <em class="font-normal italic">sí misma</em>
             </h2>
           </div>
-          <a href="#contacto" class="reveal link-line w-fit text-sm font-semibold text-ink" style="--reveal-delay: 200ms;">
+          <a data-anim="button" href="#contacto" class="link-line w-fit text-sm font-semibold text-ink">
             Iniciar un proyecto →
           </a>
         </div>
@@ -615,8 +614,8 @@
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
           <!-- Project 1 -->
-          <figure class="reveal project-figure group cursor-pointer">
-            <div class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+          <figure class="group cursor-pointer">
+            <div data-anim="mask" class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
               <img
                 src="./images/proyecto-fachada-flotante.jpg"
                 alt="Fachada flotante de vidrio con anclajes puntuales tipo araña"
@@ -624,15 +623,15 @@
                 loading="lazy"
               />
             </div>
-            <figcaption class="mt-4">
+            <figcaption data-anim="fade-up" class="mt-4">
               <p class="text-xs font-bold uppercase tracking-widest text-silver">Estructural</p>
               <p class="mt-1 font-display text-lg text-ink">Vidrio Estructural</p>
             </figcaption>
           </figure>
 
           <!-- Project 2 -->
-          <figure class="reveal project-figure group cursor-pointer" style="--reveal-delay: 100ms;">
-            <div class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+          <figure class="group cursor-pointer">
+            <div data-anim="mask" class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
               <img
                 src="./images/proyecto-muro-cortina.jpg"
                 alt="Torre corporativa con muro cortina de vidrio verde"
@@ -640,15 +639,15 @@
                 loading="lazy"
               />
             </div>
-            <figcaption class="mt-4">
+            <figcaption data-anim="fade-up" class="mt-4">
               <p class="text-xs font-bold uppercase tracking-widest text-silver">Corporativo</p>
               <p class="mt-1 font-display text-lg text-ink">Sistema Aluprom</p>
             </figcaption>
           </figure>
 
           <!-- Project 3 -->
-          <figure class="reveal project-figure group cursor-pointer" style="--reveal-delay: 200ms;">
-            <div class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
+          <figure class="group cursor-pointer">
+            <div data-anim="mask" class="img-zoom card-shadow aspect-[4/5] overflow-hidden rounded-2xl bg-fog">
               <img
                 src="./images/proyecto-diseno-fachadas.jpg"
                 alt="Render arquitectónico de torre con fachada curva de aluminio y vidrio"
@@ -656,7 +655,7 @@
                 loading="lazy"
               />
             </div>
-            <figcaption class="mt-4">
+            <figcaption data-anim="fade-up" class="mt-4">
               <p class="text-xs font-bold uppercase tracking-widest text-silver">Arquitectónico</p>
               <p class="mt-1 font-display text-lg text-ink">Fachada Arquitectónica</p>
             </figcaption>
@@ -674,12 +673,12 @@
 
         <!-- Text -->
         <div>
-          <p class="reveal-left mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Nosotros</p>
-          <h2 class="reveal-left font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl" style="--reveal-delay: 100ms;">
+          <p data-anim="eyebrow" class="eyebrow mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Nosotros</p>
+          <h2 data-anim="title" class="font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl">
             Tradición e innovación en cada <em class="font-normal italic">proyecto</em>
           </h2>
 
-          <div class="reveal-left mt-8 space-y-6 text-base leading-relaxed text-ink/60" style="--reveal-delay: 200ms;">
+          <div data-anim="left" class="mt-8 space-y-6 text-base leading-relaxed text-ink/60">
             <p>
               Fundada en 1972, <strong class="font-semibold text-ink">Vidrios Mundial</strong> nació como distribuidora mayorista de vidrio plano y evolucionó hasta convertirse en un fabricante industrial integrado, con líneas de producción de vidrio templado, laminado y blindado, y sistemas arquitectónicos de aluminio.
             </p>
@@ -688,7 +687,7 @@
             </p>
           </div>
 
-          <ul class="reveal-left mt-10 overflow-hidden rounded-2xl border border-fog" style="--reveal-delay: 300ms;">
+          <ul data-anim="left" class="mt-10 overflow-hidden rounded-2xl border border-fog">
             <li class="flex items-start gap-4 border-b border-fog p-6">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-factory mt-0.5 h-5 w-5 shrink-0 text-silver"><path d="M12 16h.01"></path><path d="M16 16h.01"></path><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path><path d="M8 16h.01"></path></svg>
               <div>
@@ -712,7 +711,7 @@
             </li>
           </ul>
 
-          <div class="reveal-left mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-accent/10 bg-fog" style="--reveal-delay: 400ms;">
+          <div data-anim="left" class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-accent/10 bg-fog">
             <div class="glass-card px-6 py-8 md:px-8 md:py-10">
               <p class="font-display text-5xl font-light text-accent md:text-6xl lg:text-7xl" data-count="50" data-prefix="+">+50</p>
               <p class="mt-3 text-xs font-medium uppercase tracking-widest text-silver">Años de trayectoria</p>
@@ -733,8 +732,8 @@
         </div>
 
         <!-- Image -->
-        <div class="reveal-right relative" style="--reveal-delay: 200ms;">
-          <div class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl">
+        <div data-anim="right" class="relative">
+          <div data-anim="mask" class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl">
             <img
               src="./images/nosotros-detalle.jpg"
               alt="Detalle de cubierta de vidrio curva y barandas de vidrio en edificio moderno"
@@ -748,13 +747,13 @@
           </div>
 
           <div class="mt-12 space-y-4">
-            <div class="card-shadow rounded-2xl border border-fog bg-mist p-6 md:p-8">
+            <div data-anim="fade-up" class="card-shadow rounded-2xl border border-fog bg-mist p-6 md:p-8">
               <p class="text-xs font-bold uppercase tracking-widest text-silver">Misión</p>
               <p class="mt-3 font-display text-lg font-light italic leading-relaxed text-ink">
                 "Satisfacer las necesidades del mercado de la construcción mediante el diseño, fabricación e instalación de soluciones integrales que combinen innovación, seguridad, eficiencia y estética."
               </p>
             </div>
-            <div class="card-shadow rounded-2xl border border-fog bg-mist p-6 md:p-8">
+            <div data-anim="fade-up" class="card-shadow rounded-2xl border border-fog bg-mist p-6 md:p-8">
               <p class="text-xs font-bold uppercase tracking-widest text-silver">Visión</p>
               <p class="mt-3 font-display text-lg font-light italic leading-relaxed text-ink">
                 "Consolidarnos como la empresa líder en sistemas de cerramiento de vidrio en Venezuela, reconocida por innovación industrial y excelencia operativa."
@@ -774,16 +773,16 @@
         <div class="grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24">
 
           <div>
-            <p class="reveal mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Alianza estratégica</p>
-            <h2 class="reveal font-display text-4xl font-light leading-tight tracking-tight md:text-5xl" style="--reveal-delay: 100ms;">
+            <p data-anim="eyebrow" class="eyebrow mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Alianza estratégica</p>
+            <h2 data-anim="title" class="font-display text-4xl font-light leading-tight tracking-tight md:text-5xl">
               Representantes oficiales de <em class="font-normal italic">Metalglas Bonomi</em> en Venezuela
             </h2>
-            <p class="reveal mt-8 max-w-lg text-base leading-relaxed text-white/60" style="--reveal-delay: 200ms;">
+            <p data-anim="fade-up" class="mt-8 max-w-lg text-base leading-relaxed text-white/60">
               Esta alianza nos da acceso a tecnología de vanguardia y materiales de la más alta calidad del mercado internacional, garantizando productos certificados que cumplen con los estándares más exigentes.
             </p>
           </div>
 
-          <ul class="reveal space-y-px overflow-hidden rounded-2xl border border-white/10" style="--reveal-delay: 300ms;">
+          <ul data-anim="fade-up" class="space-y-px overflow-hidden rounded-2xl border border-white/10">
             <li class="flex items-start gap-4 border-b border-white/10 p-6">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-badge-check mt-0.5 h-5 w-5 shrink-0 text-silver"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m16 9-5.5 5.5L8 12"></path></svg>
               <div>
@@ -818,8 +817,8 @@
       <div class="mx-auto max-w-7xl px-6 lg:px-10">
 
         <div class="mb-16 max-w-2xl md:mb-20">
-          <p class="reveal mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Contacto</p>
-          <h2 class="reveal font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl" style="--reveal-delay: 100ms;">
+          <p data-anim="eyebrow" class="eyebrow mb-4 text-xs font-bold uppercase tracking-widest2 text-silver">Contacto</p>
+          <h2 data-anim="title" class="font-display text-4xl font-light leading-tight tracking-tight text-ink md:text-5xl">
             Hablemos de su próximo <em class="font-normal italic">proyecto</em>
           </h2>
         </div>
@@ -828,8 +827,8 @@
 
           <!-- Info -->
           <div class="space-y-2 lg:col-span-2">
-            <a href="#contacto" data-whatsapp target="_blank" rel="noopener noreferrer"
-               class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink">
+            <a data-anim="fade-up" href="#contacto" data-whatsapp target="_blank" rel="noopener noreferrer"
+               class="card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-white">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-message-circle h-5 w-5"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path></svg>
               </span>
@@ -840,8 +839,8 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-up-right ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
             </a>
 
-            <a href="mailto:info@vidriosmundial.com"
-               class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 100ms;">
+            <a data-anim="fade-up" href="mailto:info@vidriosmundial.com"
+               class="card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-mail h-5 w-5"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg>
               </span>
@@ -852,8 +851,8 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-up-right ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
             </a>
 
-            <a href="https://instagram.com/vidriosmundial" target="_blank" rel="noopener noreferrer"
-               class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 200ms;">
+            <a data-anim="fade-up" href="https://instagram.com/vidriosmundial" target="_blank" rel="noopener noreferrer"
+               class="card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-instagram h-5 w-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
               </span>
@@ -864,7 +863,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-up-right ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
             </a>
 
-            <div class="reveal card-shadow flex items-center gap-5 rounded-2xl border border-fog bg-white p-6" style="--reveal-delay: 300ms;">
+            <div data-anim="fade-up" class="card-shadow flex items-center gap-5 rounded-2xl border border-fog bg-white p-6">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-map-pin h-5 w-5"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
               </span>
@@ -876,7 +875,7 @@
           </div>
 
           <!-- Form -->
-          <form id="quote-form" class="reveal rounded-2xl border border-fog bg-white p-8 md:p-10 lg:col-span-3" style="--reveal-delay: 200ms;">
+          <form data-anim="fade-up" id="quote-form" class="rounded-2xl border border-fog bg-white p-8 md:p-10 lg:col-span-3">
             <h3 class="font-display text-2xl font-normal text-ink">Solicitar cotización</h3>
             <p class="mt-2 text-sm text-ink/60">Complete el formulario y le responderemos por WhatsApp.</p>
 
@@ -940,14 +939,14 @@
     <div class="mx-auto max-w-7xl px-6 py-16 lg:px-10 md:py-20">
       <div class="grid grid-cols-1 gap-12 md:grid-cols-12">
 
-        <div class="md:col-span-5">
+        <div data-anim="fade-up" class="md:col-span-5">
           <p class="text-sm font-extrabold tracking-widest2">VIDRIOS&nbsp;MUNDIAL</p>
           <p class="mt-5 max-w-sm text-sm leading-relaxed text-white/50">
             Soluciones arquitectónicas premium en vidrio y aluminio. Representantes oficiales de Metalglas Bonomi en Venezuela.
           </p>
         </div>
 
-        <nav class="md:col-span-3" aria-label="Enlaces del sitio">
+        <nav data-anim="fade-up" class="md:col-span-3" aria-label="Enlaces del sitio">
           <p class="text-xs font-bold uppercase tracking-widest text-silver">Sitio</p>
           <ul class="mt-5 space-y-3 text-sm">
             <li><a href="#servicios" class="text-white/60 transition-colors duration-200 hover:text-white">Servicios</a></li>
@@ -957,7 +956,7 @@
           </ul>
         </nav>
 
-        <div class="md:col-span-4">
+        <div data-anim="fade-up" class="md:col-span-4">
           <p class="text-xs font-bold uppercase tracking-widest text-silver">Contacto</p>
           <ul class="mt-5 space-y-3 text-sm">
             <li>
@@ -983,7 +982,8 @@
 
       </div>
 
-      <div class="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-xs text-white/40 sm:flex-row sm:items-center">
+      <div data-anim="rule" aria-hidden="true" class="mt-16 h-px bg-white/10"></div>
+      <div class="flex flex-col items-start justify-between gap-4 pt-8 text-xs text-white/40 sm:flex-row sm:items-center">
         <p>© <span id="year"></span> Vidrios Mundial. Todos los derechos reservados.</p>
         <p>Caracas · Venezuela</p>
       </div>
@@ -1008,26 +1008,67 @@
       link.href = whatsappUrl(link.dataset.whatsapp);
     });
 
-    // ——— Reveal on scroll ———
+    // ——— Scroll animations (vocabulary in the CSS "Scroll animations" block) ———
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    const animEls = [...document.querySelectorAll('[data-anim]')];
 
-    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
-      revealEls.forEach((el) => el.classList.add('is-visible'));
+    // Titles "write" themselves word by word. Screen readers get the whole title from aria-label.
+    // With reduced motion the title is left intact and simply fades in (CSS).
+    const splitTitle = (el) => {
+      el.setAttribute('aria-label', el.textContent.replace(/\s+/g, ' ').trim());
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const textNodes = [];
+      while (walker.nextNode()) textNodes.push(walker.currentNode);
+      let wordIndex = 0;
+      textNodes.forEach((node) => {
+        const frag = document.createDocumentFragment();
+        node.textContent.split(/(\s+)/).forEach((part) => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+          const word = document.createElement('span');
+          word.className = 'w';
+          word.setAttribute('aria-hidden', 'true');
+          const inner = document.createElement('span');
+          inner.textContent = part;
+          inner.style.setProperty('--i', wordIndex++);
+          word.appendChild(inner);
+          frag.appendChild(word);
+        });
+        node.parentNode.replaceChild(frag, node);
+      });
+      el.classList.add('is-split');
+    };
+    if (!prefersReducedMotion) animEls.filter((el) => el.dataset.anim === 'title').forEach(splitTitle);
+
+    const revealEl = (el, delay) => {
+      el.style.setProperty('--d', `${delay}ms`);
+      el.classList.add('is-in');
+      // Titles keep their word spans styled. Everything else hands control back to its own
+      // transitions (hover lifts, image zoom, border colours) once the entrance has finished.
+      if (el.dataset.anim === 'title') return;
+      setTimeout(() => {
+        el.removeAttribute('data-anim');
+        el.style.removeProperty('--d');
+      }, delay + 2000);
+    };
+
+    if ('IntersectionObserver' in window) {
+      const animObserver = new IntersectionObserver((entries) => {
+        // Elements entering together are staggered in document order (a grid row, a header block…)
+        const entering = entries
+          .filter((entry) => entry.isIntersecting)
+          .map((entry) => entry.target)
+          .sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+        entering.forEach((el, i) => {
+          animObserver.unobserve(el);
+          revealEl(el, Math.min(i, 8) * 90);
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      animEls.forEach((el) => animObserver.observe(el));
     } else {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-visible');
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
-      );
-      revealEls.forEach((el) => observer.observe(el));
+      animEls.forEach((el) => revealEl(el, 0));
     }
+    window.__vmMotionReady = true;
 
     // ——— Hero scroll-scrub (image sequence on canvas) ———
     const heroScrollWrapper = document.getElementById('hero-scroll-wrapper');
@@ -1035,8 +1076,9 @@
     const heroCanvas = document.getElementById('hero-scroll-canvas');
     const heroFallback = document.getElementById('hero-scroll-fallback');
 
-    // With reduced motion the <picture> already shows the final frame and CSS shows the text.
-    if (heroScrollWrapper && heroCanvas && !prefersReducedMotion) {
+    // The scrub always runs (also with reduced motion: the user drives it with their own scroll).
+    // Reduced motion only swaps the letter-by-letter typewriter for a plain fade of the text.
+    if (heroScrollWrapper && heroCanvas) {
       const MOBILE_MAX_ASPECT = 0.6; // portrait crops are 608×1080 (≈0.56); must match the <picture> media query
       const MAX_CONCURRENT = 6;
       const makeSet = (path, count) => ({ path, count, images: new Array(count), loaded: new Uint8Array(count), loadedCount: 0, queue: null, inflight: 0 });
@@ -1088,11 +1130,11 @@
           el.prepend(srText);
         }
       };
-      twElements.forEach(wrapChars);
+      if (!prefersReducedMotion) twElements.forEach(wrapChars);
 
       const runTypewriter = () => {
         const totalChars = allChars.length;
-        const totalDuration = 800;
+        const totalDuration = prefersReducedMotion ? 0 : 800;
         const perChar = totalDuration / totalChars;
         allChars.forEach((span, i) => {
           setTimeout(() => span.classList.add('tw-visible'), i * perChar);
@@ -1194,7 +1236,7 @@
         const nextSet = rect.width / rect.height <= MOBILE_MAX_ASPECT ? frameSets.mobile : frameSets.desktop;
         if (nextSet !== activeSet) {
           activeSet = nextSet;
-          heroCanvas.dataset.count = activeSet.count;
+          heroCanvas.dataset.frameCount = activeSet.count;
           heroCanvas.dataset.loaded = activeSet.loadedCount;
           drawnIndex = -1;
           pump(activeSet);
