@@ -388,17 +388,17 @@
 
     <!-- ============================================================
          HERO — scroll-scrub full-bleed image sequence (canvas)
-         Frames: images/hero-frames/v1/{desktop 1600×900 ×150, mobile 608×1080 ×114}
+         Frames: v1 (light) + v2 (high quality) in images/hero-frames/, see the loader in the script
          The <picture> paints the first frame instantly; the canvas takes over once frames load.
          The scrub also runs with prefers-reduced-motion: the user drives it with their own scroll.
     ============================================================= -->
     <section id="hero-scroll-wrapper">
       <div class="hero-scroll-sticky">
         <picture>
-          <source media="(max-aspect-ratio: 3/5)" srcset="./images/hero-frames/v1/mobile/000.webp">
+          <source media="(max-aspect-ratio: 3/5)" srcset="./images/hero-frames/v2/mobile/000.webp">
           <img
             id="hero-scroll-fallback"
-            src="./images/hero-frames/v1/desktop/000.webp"
+            src="./images/hero-frames/v2/desktop/000.webp"
             alt=""
             fetchpriority="high"
             class="h-full w-full object-cover"
@@ -1081,15 +1081,33 @@
     if (heroScrollWrapper && heroCanvas) {
       const MOBILE_MAX_ASPECT = 0.6; // portrait crops are 608×1080 (≈0.56); must match the <picture> media query
       const MAX_CONCURRENT = 6;
-      const makeSet = (path, count) => ({ path, count, images: new Array(count), loaded: new Uint8Array(count), loadedCount: 0, queue: null, inflight: 0 });
-      const frameSets = {
-        desktop: makeSet('./images/hero-frames/v1/desktop/', 150),
-        mobile: makeSet('./images/hero-frames/v1/mobile/', 114),
+      // Two quality tiers per layout (the source video is 1920×1080, nothing larger exists):
+      //   lq  v1: light sequence (1600×900 ×150 / 608×1080 ×114, WebP q75) → the scrub responds fast
+      //   hq  v2: every source frame at 1920×1080 (×227) / 608×1080 (×114), WebP q85, first and
+      //       last frames q92. Streamed in the background and swapped in frame by frame.
+      // hqFrom: on mobile only the 70–100% stretch (where the text sits and people stop to read)
+      // plus the first frame are upgraded, to spare mobile data; desktop upgrades everything.
+      const MOBILE_HQ_FROM = 0.7;
+      // Data saver on: upgrade only the first and last frames
+      const SAVE_DATA = Boolean(navigator.connection && navigator.connection.saveData);
+      const makeSet = (path, count) => ({ path, count, images: new Array(count), loaded: new Uint8Array(count), loadedCount: 0 });
+      const layouts = {
+        desktop: {
+          lq: makeSet('./images/hero-frames/v1/desktop/', 150),
+          hq: makeSet('./images/hero-frames/v2/desktop/', 227),
+          hqFrom: SAVE_DATA ? 1 : 0,
+        },
+        mobile: {
+          lq: makeSet('./images/hero-frames/v1/mobile/', 114),
+          hq: makeSet('./images/hero-frames/v2/mobile/', 114),
+          hqFrom: SAVE_DATA ? 1 : MOBILE_HQ_FROM,
+        },
       };
+      for (const layout of Object.values(layouts)) Object.assign(layout, { queue: null, inflight: 0 });
 
       const ctx = heroCanvas.getContext('2d');
       const sticky = heroCanvas.parentElement;
-      let activeSet = null;
+      let activeLayout = null;
       let drawnSet = null;
       let drawnIndex = -1;
       let targetProgress = 0;
@@ -1166,19 +1184,46 @@
         if (rafId === null && heroVisible) rafId = requestAnimationFrame(tick);
       };
 
-      // ——— Frame loading: coarse to fine (ends, every 16th, 8th, 4th, 2nd, rest) ———
-      const loadOrder = (count) => {
-        const order = [0, count - 1];
-        const seen = new Set(order);
-        for (let stride = 16; stride >= 1; stride >>= 1) {
-          for (let i = 0; i < count; i += stride) {
-            if (!seen.has(i)) { seen.add(i); order.push(i); }
-          }
+      // ——— Frame loading ———
+      // One queue per layout, in this order:
+      //   1. light sequence, coarse pass (ends + every 16th) → the whole scrub works almost at once
+      //   2. the last frame in high quality (the resting frame behind the text)
+      //   3. rest of the light sequence, coarse to fine (every 8th, 4th, 2nd, rest)
+      //   4. high-quality frames, coarse to fine (mobile: only from hqFrom on, plus the first frame)
+      const buildQueue = (layout) => {
+        const { lq, hq } = layout;
+        const jobs = [];
+        const seen = new Set();
+        const add = (set, i) => {
+          const key = set.path + i;
+          if (seen.has(key) || set.loaded[i]) return;
+          seen.add(key);
+          jobs.push([set, i]);
+        };
+        const hqAllowed = (i) => i === 0 || i === hq.count - 1 || i / (hq.count - 1) >= layout.hqFrom;
+        // The <picture> already shows the first frame in high quality: adopt it and skip its light twin
+        const pictureIsHq0 = heroFallback && heroFallback.currentSrc === new URL(frameUrl(hq, 0), location.href).href;
+        add(pictureIsHq0 ? hq : lq, 0);
+        add(lq, lq.count - 1);
+        for (let i = 0; i < lq.count; i += 16) add(lq, i);
+        add(hq, hq.count - 1);
+        for (let stride = 8; stride >= 1; stride >>= 1) {
+          for (let i = 0; i < lq.count; i += stride) if (!(i === 0 && pictureIsHq0)) add(lq, i);
         }
-        return order;
+        add(hq, 0);
+        for (let stride = 16; stride >= 1; stride >>= 1) {
+          for (let i = 0; i < hq.count; i += stride) if (hqAllowed(i)) add(hq, i);
+        }
+        return jobs;
       };
 
       const frameUrl = (set, i) => `${set.path}${String(i).padStart(3, '0')}.webp`;
+
+      const publishCounts = () => {
+        const { lq, hq } = activeLayout;
+        heroCanvas.dataset.loaded = lq.loadedCount;
+        heroCanvas.dataset.hqLoaded = hq.loadedCount;
+      };
 
       const loadFrame = (set, i) => {
         const url = new URL(frameUrl(set, i), location.href).href;
@@ -1190,30 +1235,44 @@
           set.images[i] = img;
           set.loaded[i] = 1;
           set.loadedCount++;
-          if (set === activeSet) heroCanvas.dataset.loaded = set.loadedCount;
+          if (activeLayout && (set === activeLayout.lq || set === activeLayout.hq)) publishCounts();
         });
       };
 
-      // Only the active set downloads; switching sets (e.g. rotating a tablet) pauses the other
-      const pump = (set) => {
-        if (!set.queue) set.queue = loadOrder(set.count);
-        while (set === activeSet && set.inflight < MAX_CONCURRENT && set.queue.length) {
-          const i = set.queue.shift();
-          set.inflight++;
+      // Only the active layout downloads; switching (e.g. rotating a tablet) pauses the other one
+      const pump = (layout) => {
+        if (!layout.queue) layout.queue = buildQueue(layout);
+        while (layout === activeLayout && layout.inflight < MAX_CONCURRENT && layout.queue.length) {
+          const [set, i] = layout.queue.shift();
+          layout.inflight++;
           loadFrame(set, i)
-            .then(() => { if (set === activeSet) kick(); })
+            .then(() => { if (layout === activeLayout) kick(); })
             .catch(() => {})
-            .finally(() => { set.inflight--; pump(set); });
+            .finally(() => { layout.inflight--; pump(layout); });
         }
       };
 
-      // Nearest frame that has actually loaded, so a fast scroll never freezes on a missing frame
-      const nearestLoaded = (set, target) => {
-        for (let d = 0; d < set.count; d++) {
+      // Nearest frame that has actually loaded (within maxDist), so a fast scroll never freezes
+      const nearestLoaded = (set, target, maxDist = set.count) => {
+        for (let d = 0; d <= maxDist; d++) {
           if (target - d >= 0 && set.loaded[target - d]) return target - d;
           if (target + d < set.count && set.loaded[target + d]) return target + d;
         }
         return -1;
+      };
+
+      // Best frame for a scroll progress: the high-quality one when it is at least as close to the
+      // target as the light one (within half a light frame), otherwise the nearest light frame.
+      const pickFrame = (progress) => {
+        const { lq, hq } = activeLayout;
+        const li = nearestLoaded(lq, Math.round(progress * (lq.count - 1)));
+        const hi = nearestLoaded(hq, Math.round(progress * (hq.count - 1)), 2);
+        if (hi !== -1) {
+          const hqDistance = Math.abs(hi / (hq.count - 1) - progress);
+          const lqDistance = li === -1 ? Infinity : Math.abs(li / (lq.count - 1) - progress);
+          if (hqDistance <= lqDistance + 0.5 / (lq.count - 1)) return [hq, hi];
+        }
+        return li === -1 ? null : [lq, li];
       };
 
       // Same framing as object-fit: cover
@@ -1229,17 +1288,19 @@
       const resizeCanvas = () => {
         cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
         const rect = sticky.getBoundingClientRect();
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        // Full device resolution (up to 3×) so the frame is resampled once, with high-quality smoothing
+        const dpr = Math.min(window.devicePixelRatio || 1, 3);
         const width = Math.round(rect.width * dpr);
         const height = Math.round(rect.height * dpr);
 
-        const nextSet = rect.width / rect.height <= MOBILE_MAX_ASPECT ? frameSets.mobile : frameSets.desktop;
-        if (nextSet !== activeSet) {
-          activeSet = nextSet;
-          heroCanvas.dataset.frameCount = activeSet.count;
-          heroCanvas.dataset.loaded = activeSet.loadedCount;
+        const nextLayout = rect.width / rect.height <= MOBILE_MAX_ASPECT ? layouts.mobile : layouts.desktop;
+        if (nextLayout !== activeLayout) {
+          activeLayout = nextLayout;
+          heroCanvas.dataset.layout = activeLayout === layouts.mobile ? 'mobile' : 'desktop';
+          heroCanvas.dataset.lqCount = activeLayout.lq.count;
+          publishCounts();
           drawnIndex = -1;
-          pump(activeSet);
+          pump(activeLayout);
         }
         // Mobile toolbars fire resize without changing the 100vh box; only reset the canvas on a real size change
         if (heroCanvas.width !== width || heroCanvas.height !== height) {
@@ -1262,13 +1323,16 @@
         currentProgress += (targetProgress - currentProgress) * 0.12;
         if (Math.abs(currentProgress - targetProgress) < 0.0005) currentProgress = targetProgress;
 
-        const set = activeSet;
-        const index = nearestLoaded(set, Math.round(currentProgress * (set.count - 1)));
-        if (index !== -1 && (index !== drawnIndex || set !== drawnSet)) {
+        const pick = pickFrame(currentProgress);
+        if (pick && (pick[1] !== drawnIndex || pick[0] !== drawnSet)) {
+          const [set, index] = pick;
           drawFrame(set.images[index]);
           drawnIndex = index;
           drawnSet = set;
+          // Test hooks: which frame of which tier is on screen
           heroCanvas.dataset.frame = index;
+          heroCanvas.dataset.frameCount = set.count;
+          heroCanvas.dataset.tier = set === activeLayout.hq ? 'hq' : 'lq';
         }
 
         const overlayVisible = currentProgress >= 0.7;
