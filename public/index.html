@@ -157,14 +157,109 @@
     }
     .js [data-anim="title"].is-in .w > span { opacity: 1; transform: none; }
 
-    /* ——— Mobile menu fade-in ——— */
-    #mobile-menu:not(.hidden) {
-      animation: menu-fade-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    /* ——— Site menu: full-screen dark panel with blur, numbered serif links ——— */
+    .menu-toggle-box {
+      position: relative;
+      display: block;
+      width: 24px;
+      height: 16px;
     }
-    @keyframes menu-fade-in {
-      from { opacity: 0; transform: translateY(-10px); }
-      to   { opacity: 1; transform: translateY(0); }
+    .menu-toggle-box span {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      border-radius: 2px;
+      background-color: currentColor;
+      transition: top 0.35s var(--ease), transform 0.45s var(--ease), opacity 0.25s ease;
     }
+    .menu-toggle-box span:nth-child(1) { top: 0; }
+    .menu-toggle-box span:nth-child(2) { top: 7px; }
+    .menu-toggle-box span:nth-child(3) { top: 14px; }
+    .menu-open .menu-toggle-box span:nth-child(1) { top: 7px; transform: rotate(45deg); }
+    .menu-open .menu-toggle-box span:nth-child(2) { opacity: 0; transform: scaleX(0.2); }
+    .menu-open .menu-toggle-box span:nth-child(3) { top: 7px; transform: rotate(-45deg); }
+
+    .site-menu {
+      position: fixed;
+      inset: 0;
+      z-index: 45;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      color: #ffffff;
+      background-color: rgba(10, 10, 10, 0.94);
+      backdrop-filter: blur(20px) saturate(1.1);
+      -webkit-backdrop-filter: blur(20px) saturate(1.1);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.45s var(--ease), visibility 0s linear 0.45s;
+    }
+    .site-menu.is-open {
+      opacity: 1;
+      visibility: visible;
+      transition-delay: 0s;
+    }
+    .site-menu-links {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .site-menu-links li,
+    .site-menu-footer {
+      opacity: 0;
+      transform: translate3d(0, 16px, 0);
+      transition: opacity 0.5s var(--ease), transform 0.6s var(--ease);
+    }
+    .site-menu-links li { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .site-menu.is-open .site-menu-links li,
+    .site-menu.is-open .site-menu-footer {
+      opacity: 1;
+      transform: none;
+      transition-delay: calc(120ms + var(--i, 0) * 70ms);
+    }
+    .site-menu-link {
+      display: flex;
+      align-items: baseline;
+      gap: 1.25rem;
+      padding: 1rem 0;
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(2.5rem, 9vw, 5rem);
+      line-height: 1;
+      color: #ffffff;
+      transition: color 0.3s ease, transform 0.4s var(--ease);
+    }
+    .site-menu-link:hover,
+    .site-menu-link:focus-visible {
+      transform: translate3d(0.5rem, 0, 0);
+    }
+    .site-menu-links:hover .site-menu-link:not(:hover) { color: rgba(255, 255, 255, 0.45); }
+    .site-menu-num {
+      min-width: 1.75rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      color: rgba(255, 255, 255, 0.45);
+      transform: translateY(-0.2em);
+    }
+    .site-menu a:focus-visible,
+    .menu-open #menu-btn:focus-visible,
+    #navbar:not(.scrolled) #menu-btn:focus-visible {
+      outline-color: #ffffff;
+    }
+    /* While the menu is open the navbar floats over it: transparent, light logo and icon */
+    html.menu-open #navbar,
+    html.menu-open #navbar.scrolled {
+      background-color: transparent;
+      border-bottom-color: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+    html.menu-open #navbar .nav-logo img { filter: brightness(0) invert(1); }
+    html.menu-open #navbar #menu-btn { color: #ffffff; filter: none; }
+    html.menu-open .wa-float.is-visible { opacity: 0; visibility: hidden; }
 
     /* ——— Service card lift hover ——— */
     .service-card {
@@ -373,9 +468,6 @@
       #hero-scroll-overlay {
         transition: opacity 0.6s ease;
       }
-      #mobile-menu:not(.hidden) {
-        animation: none;
-      }
     }
   </style>
 
@@ -394,23 +486,44 @@
         <img src="./images/logo.png" alt="Vidrios Mundial" class="h-[34px] w-auto lg:h-10" />
       </a>
 
-      <button id="menu-btn" class="cursor-pointer p-2 text-ink transition-colors duration-300" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-menu h-7 w-7" id="menu-icon-open"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-x hidden h-8 w-8" id="menu-icon-close"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+      <button id="menu-btn" type="button" class="cursor-pointer p-2 text-ink" aria-label="Abrir menú" aria-expanded="false" aria-controls="site-menu">
+        <span class="menu-toggle-box" aria-hidden="true"><span></span><span></span><span></span></span>
       </button>
     </nav>
+  </header>
 
-    <!-- Mobile menu -->
-    <div id="mobile-menu" class="hidden border-t border-ink/10 bg-[#f8f8f6] px-6 pb-10 pt-2">
-      <div class="flex flex-col">
-        <a href="#servicios" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Servicios</a>
-        <a href="#proyectos" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Proyectos</a>
-        <a href="#nosotros" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Nosotros</a>
-        <a href="#contacto" class="mobile-link border-b border-ink/10 py-5 text-2xl font-medium text-ink/80">Contacto</a>
-        <a href="#contacto" class="mobile-link mt-8 inline-flex w-full items-center justify-center rounded-full bg-ink px-7 py-4 text-base font-semibold text-white">Cotizar</a>
+  <!-- ============================================================
+       MENU — full-screen overlay (opened by #menu-btn)
+  ============================================================= -->
+  <div id="site-menu" class="site-menu" role="dialog" aria-modal="true" aria-label="Menú del sitio">
+    <div class="mx-auto flex min-h-full max-w-7xl flex-col justify-between gap-12 px-6 pb-10 pt-28 lg:px-10 lg:pb-14 lg:pt-36">
+      <nav aria-label="Secciones">
+        <ol class="site-menu-links">
+          <li style="--i: 0"><a href="#servicios" class="site-menu-link"><span class="site-menu-num">01</span>Servicios</a></li>
+          <li style="--i: 1"><a href="#proyectos" class="site-menu-link"><span class="site-menu-num">02</span>Proyectos</a></li>
+          <li style="--i: 2"><a href="#nosotros" class="site-menu-link"><span class="site-menu-num">03</span>Nosotros</a></li>
+          <li style="--i: 3"><a href="#contacto" class="site-menu-link"><span class="site-menu-num">04</span>Contacto</a></li>
+        </ol>
+      </nav>
+
+      <div class="site-menu-footer" style="--i: 4">
+        <div class="flex flex-col gap-3 sm:flex-row">
+          <a href="#contacto" class="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-semibold text-ink transition-colors duration-200 hover:bg-white/90">
+            Solicitar cotización
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-right h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+          </a>
+          <a href="#contacto" data-whatsapp="Hola, vengo de la página web de Vidrios Mundial y quisiera más información." target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/10">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-4 w-4"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            Escríbanos por WhatsApp
+          </a>
+        </div>
+        <div class="mt-8 flex flex-col gap-2 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-xs font-bold uppercase tracking-widest2 text-white/55">Caracas · Venezuela · Desde 1972</p>
+          <a href="mailto:info@vidriosmundial.com" class="transition-colors duration-200 hover:text-white">info@vidriosmundial.com</a>
+        </div>
       </div>
     </div>
-  </header>
+  </div>
 
   <main id="inicio">
 
@@ -1421,24 +1534,67 @@
       setPastHero(true);
     }
 
-    // ——— Mobile menu ———
+    // ——— Site menu ———
+    // Full-screen dialog: traps focus, closes on Escape, on a link, or on a tap anywhere that is not
+    // a link/button, and locks the page behind it (position: fixed also works on iOS Safari).
     const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const iconOpen = document.getElementById('menu-icon-open');
-    const iconClose = document.getElementById('menu-icon-close');
+    const siteMenu = document.getElementById('site-menu');
+    const pageRegions = [document.querySelector('main'), document.querySelector('footer'), document.getElementById('wa-float')];
+    let menuOpen = false;
+    let lockedScrollY = 0;
 
-    const setMenu = (open) => {
-      mobileMenu.classList.toggle('hidden', !open);
-      iconOpen.classList.toggle('hidden', open);
-      iconClose.classList.toggle('hidden', !open);
+    const lockScroll = () => {
+      lockedScrollY = window.scrollY;
+      Object.assign(document.body.style, { position: 'fixed', top: `-${lockedScrollY}px`, left: '0', right: '0' });
+    };
+    const unlockScroll = () => {
+      Object.assign(document.body.style, { position: '', top: '', left: '', right: '' });
+      // Jump back instantly (the page uses smooth anchor scrolling)
+      const root = document.documentElement;
+      root.style.scrollBehavior = 'auto';
+      window.scrollTo(0, lockedScrollY);
+      root.style.scrollBehavior = '';
+    };
+    const menuFocusables = () => [menuBtn, ...siteMenu.querySelectorAll('a[href], button')];
+
+    const setMenu = (open, { returnFocus = true } = {}) => {
+      if (open === menuOpen) return;
+      menuOpen = open;
+      document.documentElement.classList.toggle('menu-open', open);
+      siteMenu.classList.toggle('is-open', open);
       menuBtn.setAttribute('aria-expanded', String(open));
       menuBtn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+      pageRegions.forEach((el) => { if (el) el.inert = open; });
+      if (open) {
+        lockScroll();
+        siteMenu.querySelector('.site-menu-link').focus({ preventScroll: true });
+      } else {
+        unlockScroll();
+        if (returnFocus) menuBtn.focus({ preventScroll: true });
+      }
     };
 
-    menuBtn.addEventListener('click', () => setMenu(mobileMenu.classList.contains('hidden')));
-    document.querySelectorAll('.mobile-link').forEach((link) =>
-      link.addEventListener('click', () => setMenu(false))
-    );
+    menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+    siteMenu.addEventListener('click', (e) => {
+      // Links close the menu before the browser follows them (the page is unlocked first so the
+      // smooth scroll to the section starts from the right place); taps on empty space close it too.
+      const link = e.target.closest('a');
+      if (link) setMenu(false, { returnFocus: false });
+      else if (!e.target.closest('button')) setMenu(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!menuOpen) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setMenu(false);
+      } else if (e.key === 'Tab') {
+        const items = menuFocusables();
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
 
     // ——— Quote form → WhatsApp ———
     const quoteForm = document.getElementById('quote-form');
