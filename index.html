@@ -5,40 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vidrios Mundial — Soluciones Premium en Vidrio y Aluminio</title>
   <meta name="description" content="Empresa venezolana fundada en 1972, especializada en vidrio arquitectónico, sistemas de aluminio e instalación integral. Representantes oficiales de Metalglas Bonomi en Venezuela." />
+  <link rel="canonical" href="https://vidriosmundial.vercel.app/" />
+  <meta name="theme-color" content="#0a0a0a" />
 
-  <!-- Fonts: Inter (UI) + Instrument Serif (display serif) -->
+  <!-- Icons -->
+  <link rel="icon" href="./favicon.ico" sizes="32x32" />
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+
+  <!-- Open Graph / Twitter (link previews in WhatsApp, Facebook, X…) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Vidrios Mundial" />
+  <meta property="og:locale" content="es_VE" />
+  <meta property="og:url" content="https://vidriosmundial.vercel.app/" />
+  <meta property="og:title" content="Vidrios Mundial — Soluciones Premium en Vidrio y Aluminio" />
+  <meta property="og:description" content="Vidrio arquitectónico, sistemas de aluminio e instalación integral en Venezuela desde 1972. Representantes oficiales de Metalglas Bonomi." />
+  <meta property="og:image" content="https://vidriosmundial.vercel.app/images/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Fachada de vidrio de un rascacielos con el logo de Vidrios Mundial" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Vidrios Mundial — Soluciones Premium en Vidrio y Aluminio" />
+  <meta name="twitter:description" content="Vidrio arquitectónico, sistemas de aluminio e instalación integral en Venezuela desde 1972." />
+  <meta name="twitter:image" content="https://vidriosmundial.vercel.app/images/og-image.jpg" />
+
+  <!-- Fonts: Inter (UI) + Instrument Serif (display serif). Inter 300 is not used (font-light is only on the serif). -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Instrument Serif', 'serif'],
-          },
-          colors: {
-            ink: '#0a0a0a',
-            paper: '#ffffff',
-            mist: '#f7f7f7',
-            fog: '#e8eaed',
-            silver: '#9ca3af',
-            accent: '#004480',
-          },
-          letterSpacing: {
-            widest2: '0.25em',
-          },
-        },
-      },
-    };
-  </script>
-
-  <!-- Lucide icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
 
   <style>
     ::selection {
@@ -335,6 +329,9 @@
       }
     }
   </style>
+
+  <!-- Tailwind, compiled (see tailwind.site.config.cjs). Loaded after the custom styles, same cascade order the CDN had. -->
+  <link rel="stylesheet" href="./css/site.css" />
 </head>
 
 <body class="overflow-x-hidden bg-paper font-sans text-ink antialiased">
@@ -349,8 +346,8 @@
       </a>
 
       <button id="menu-btn" class="cursor-pointer p-2 text-ink transition-colors duration-300" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
-        <i data-lucide="menu" class="h-7 w-7" id="menu-icon-open"></i>
-        <i data-lucide="x" class="hidden h-8 w-8" id="menu-icon-close"></i>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-menu h-7 w-7" id="menu-icon-open"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-x hidden h-8 w-8" id="menu-icon-close"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
       </button>
     </nav>
 
@@ -397,7 +394,7 @@
             <p id="hero-eyebrow" class="hero-typewriter mb-4 text-xs font-bold uppercase tracking-widest2 text-white/70">
               Caracas · Venezuela
             </p>
-            <h1 id="hero-heading" class="hero-typewriter font-display text-4xl font-light leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl xl:text-7xl">
+            <h1 id="hero-heading" aria-label="Soluciones Premium en Vidrio y Aluminio" class="hero-typewriter font-display text-4xl font-light leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl xl:text-7xl">
               Soluciones <em class="font-normal italic">Premium</em> en Vidrio y Aluminio
             </h1>
             <p id="hero-subtitle" class="hero-typewriter mt-6 max-w-xl text-base leading-relaxed text-white/70 md:text-lg">
@@ -406,7 +403,7 @@
             <div id="hero-buttons" class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center" style="opacity:0; transform:translateY(16px); transition: opacity 0.5s ease, transform 0.5s ease;">
               <a href="#contacto" class="group inline-flex cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-semibold text-ink transition-colors duration-200 hover:bg-white/90">
                 Solicitar cotización
-                <i data-lucide="arrow-right" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-right h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
               </a>
               <a href="#proyectos" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/40 px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/10" style="opacity:0; transform:translateY(16px); transition: opacity 0.5s ease 0.08s, transform 0.5s ease 0.08s;">
                 Ver proyectos
@@ -438,7 +435,7 @@
           <!-- Card 1 -->
           <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10">
             <div class="mb-8 flex items-start justify-between">
-              <i data-lucide="flame" class="h-7 w-7 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-flame h-7 w-7 text-ink"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path></svg>
               <span class="font-display text-sm italic text-silver">01</span>
             </div>
             <h3 class="font-display text-2xl font-normal text-ink">Vidrio Templado</h3>
@@ -450,7 +447,7 @@
           <!-- Card 2 -->
           <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 80ms;">
             <div class="mb-8 flex items-start justify-between">
-              <i data-lucide="layers" class="h-7 w-7 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-layers h-7 w-7 text-ink"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"></path><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path></svg>
               <span class="font-display text-sm italic text-silver">02</span>
             </div>
             <h3 class="font-display text-2xl font-normal text-ink">Vidrio Laminado</h3>
@@ -462,7 +459,7 @@
           <!-- Card 3 -->
           <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 160ms;">
             <div class="mb-8 flex items-start justify-between">
-              <i data-lucide="sun-snow" class="h-7 w-7 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-sun-snow h-7 w-7 text-ink"><path d="M10 21v-1"></path><path d="M10 4V3"></path><path d="M10 9a3 3 0 0 0 0 6"></path><path d="m14 20 1.25-2.5L18 18"></path><path d="m14 4 1.25 2.5L18 6"></path><path d="m17 21-3-6 1.5-3H22"></path><path d="m17 3-3 6 1.5 3"></path><path d="M2 12h1"></path><path d="m20 10-1.5 2 1.5 2"></path><path d="m3.64 18.36.7-.7"></path><path d="m4.34 6.34-.7-.7"></path></svg>
               <span class="font-display text-sm italic text-silver">03</span>
             </div>
             <h3 class="font-display text-2xl font-normal text-ink">Vidrio Insulado (DVH)</h3>
@@ -474,7 +471,7 @@
           <!-- Card 4 -->
           <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 240ms;">
             <div class="mb-8 flex items-start justify-between">
-              <i data-lucide="shield-check" class="h-7 w-7 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-shield-check h-7 w-7 text-ink"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
               <span class="font-display text-sm italic text-silver">04</span>
             </div>
             <h3 class="font-display text-2xl font-normal text-ink">Vidrio Blindado</h3>
@@ -486,7 +483,7 @@
           <!-- Card 5 -->
           <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 320ms;">
             <div class="mb-8 flex items-start justify-between">
-              <i data-lucide="wind" class="h-7 w-7 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-wind h-7 w-7 text-ink"><path d="M12.8 19.6A2 2 0 1 0 14 16H2"></path><path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"></path><path d="M9.8 4.4A2 2 0 1 1 11 8H2"></path></svg>
               <span class="font-display text-sm italic text-silver">05</span>
             </div>
             <h3 class="font-display text-2xl font-normal text-ink">Laminado Anti-Huracán</h3>
@@ -498,7 +495,7 @@
           <!-- Card 6 -->
           <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 400ms;">
             <div class="mb-8 flex items-start justify-between">
-              <i data-lucide="blinds" class="h-7 w-7 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-blinds h-7 w-7 text-ink"><path d="M3 3h18"></path><path d="M20 7H8"></path><path d="M20 11H8"></path><path d="M10 19h10"></path><path d="M8 15h12"></path><path d="M4 3v14"></path><circle cx="4" cy="19" r="2"></circle></svg>
               <span class="font-display text-sm italic text-silver">06</span>
             </div>
             <h3 class="font-display text-2xl font-normal text-ink">Ventanería Aluprom</h3>
@@ -510,7 +507,7 @@
           <!-- Card 7 -->
           <article class="reveal service-card group cursor-pointer bg-paper p-8 hover:bg-mist md:p-10" style="--reveal-delay: 480ms;">
             <div class="mb-8 flex items-start justify-between">
-              <i data-lucide="fence" class="h-7 w-7 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-fence h-7 w-7 text-ink"><path d="M4 3 2 5v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z"></path><path d="M6 8h4"></path><path d="M6 18h4"></path><path d="m12 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z"></path><path d="M14 8h4"></path><path d="M14 18h4"></path><path d="m20 3-2 2v15c0 .6.4 1 1 1h2c.6 0 1-.4 1-1V5Z"></path></svg>
               <span class="font-display text-sm italic text-silver">07</span>
             </div>
             <h3 class="font-display text-2xl font-normal text-ink">Barandas B-8000</h3>
@@ -546,28 +543,28 @@
 
           <div class="reveal flex items-center gap-4">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
-              <i data-lucide="file-check" class="h-5 w-5 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-file-check h-5 w-5 text-ink"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="m9 15 2 2 4-4"></path></svg>
             </span>
             <p class="text-sm font-semibold leading-snug text-ink">ANSI Z97.1 / EN 12150</p>
           </div>
 
           <div class="reveal flex items-center gap-4" style="--reveal-delay: 100ms;">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
-              <i data-lucide="shield" class="h-5 w-5 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-shield h-5 w-5 text-ink"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>
             </span>
             <p class="text-sm font-semibold leading-snug text-ink">Protección Balística Certificada</p>
           </div>
 
           <div class="reveal flex items-center gap-4" style="--reveal-delay: 200ms;">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
-              <i data-lucide="handshake" class="h-5 w-5 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-handshake h-5 w-5 text-ink"><path d="m11 17 2 2a1 1 0 1 0 3-3"></path><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"></path><path d="m21 3 1 11h-2"></path><path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3"></path><path d="M3 4h8"></path></svg>
             </span>
             <p class="text-sm font-semibold leading-snug text-ink">Representantes Oficiales Metalglas Bonomi</p>
           </div>
 
           <div class="reveal flex items-center gap-4" style="--reveal-delay: 300ms;">
             <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-fog bg-mist">
-              <i data-lucide="award" class="h-5 w-5 text-ink"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-award h-5 w-5 text-ink"><path d="m15.477 12.89 1.515 8.526a.5.5 0 0 1-.81.47l-3.58-2.687a1 1 0 0 0-1.197 0l-3.586 2.686a.5.5 0 0 1-.81-.469l1.514-8.526"></path><circle cx="12" cy="8" r="6"></circle></svg>
             </span>
             <p class="text-sm font-semibold leading-snug text-ink">Tecnología Europea Aluprom</p>
           </div>
@@ -672,21 +669,21 @@
 
           <ul class="reveal-left mt-10 overflow-hidden rounded-2xl border border-fog" style="--reveal-delay: 300ms;">
             <li class="flex items-start gap-4 border-b border-fog p-6">
-              <i data-lucide="factory" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-factory mt-0.5 h-5 w-5 shrink-0 text-silver"><path d="M12 16h.01"></path><path d="M16 16h.01"></path><path d="M3 19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5a.5.5 0 0 0-.769-.422l-4.462 2.844A.5.5 0 0 1 15 10.5v-2a.5.5 0 0 0-.769-.422L9.77 10.922A.5.5 0 0 1 9 10.5V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path><path d="M8 16h.01"></path></svg>
               <div>
                 <p class="font-semibold text-ink">Vidrio arquitectónico</p>
                 <p class="mt-1 text-sm leading-relaxed text-ink/60">Producción y comercialización de vidrio arquitectónico.</p>
               </div>
             </li>
             <li class="flex items-start gap-4 border-b border-fog p-6">
-              <i data-lucide="frame" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-frame mt-0.5 h-5 w-5 shrink-0 text-silver"><line x1="22" x2="2" y1="6" y2="6"></line><line x1="22" x2="2" y1="18" y2="18"></line><line x1="6" x2="6" y1="2" y2="22"></line><line x1="18" x2="18" y1="2" y2="22"></line></svg>
               <div>
                 <p class="font-semibold text-ink">Sistemas de aluminio</p>
                 <p class="mt-1 text-sm leading-relaxed text-ink/60">Fabricación de sistemas de aluminio para cerramientos.</p>
               </div>
             </li>
             <li class="flex items-start gap-4 p-6">
-              <i data-lucide="hard-hat" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-hard-hat mt-0.5 h-5 w-5 shrink-0 text-silver"><path d="M10 10V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5"></path><path d="M14 6a6 6 0 0 1 6 6v3"></path><path d="M4 15v-3a6 6 0 0 1 6-6"></path><rect x="2" y="15" width="20" height="4" rx="1"></rect></svg>
               <div>
                 <p class="font-semibold text-ink">Instalación integral</p>
                 <p class="mt-1 text-sm leading-relaxed text-ink/60">Instalación integral de proyectos de construcción.</p>
@@ -767,21 +764,21 @@
 
           <ul class="reveal space-y-px overflow-hidden rounded-2xl border border-white/10" style="--reveal-delay: 300ms;">
             <li class="flex items-start gap-4 border-b border-white/10 p-6">
-              <i data-lucide="badge-check" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-badge-check mt-0.5 h-5 w-5 shrink-0 text-silver"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path><path d="m16 9-5.5 5.5L8 12"></path></svg>
               <div>
                 <p class="font-semibold">Productos certificados</p>
                 <p class="mt-1 text-sm leading-relaxed text-white/50">Cumplimiento de los estándares internacionales más exigentes.</p>
               </div>
             </li>
             <li class="flex items-start gap-4 border-b border-white/10 p-6">
-              <i data-lucide="cpu" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-cpu mt-0.5 h-5 w-5 shrink-0 text-silver"><path d="M12 20v2"></path><path d="M12 2v2"></path><path d="M17 20v2"></path><path d="M17 2v2"></path><path d="M2 12h2"></path><path d="M2 17h2"></path><path d="M2 7h2"></path><path d="M20 12h2"></path><path d="M20 17h2"></path><path d="M20 7h2"></path><path d="M7 20v2"></path><path d="M7 2v2"></path><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="8" y="8" width="8" height="8" rx="1"></rect></svg>
               <div>
                 <p class="font-semibold">Tecnología de vanguardia</p>
                 <p class="mt-1 text-sm leading-relaxed text-white/50">Acceso directo a la innovación del mercado internacional.</p>
               </div>
             </li>
             <li class="flex items-start gap-4 p-6">
-              <i data-lucide="gem" class="mt-0.5 h-5 w-5 shrink-0 text-silver"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-gem mt-0.5 h-5 w-5 shrink-0 text-silver"><path d="M10.5 3 8 9l4 13 4-13-2.5-6"></path><path d="M17 3a2 2 0 0 1 1.6.8l3 4a2 2 0 0 1 .013 2.382l-7.99 10.986a2 2 0 0 1-3.247 0l-7.99-10.986A2 2 0 0 1 2.4 7.8l2.998-3.997A2 2 0 0 1 7 3z"></path><path d="M2 9h20"></path></svg>
               <div>
                 <p class="font-semibold">Materiales premium</p>
                 <p class="mt-1 text-sm leading-relaxed text-white/50">La más alta calidad disponible, respaldada por nuestra representación oficial.</p>
@@ -813,42 +810,42 @@
             <a href="https://wa.me/584141234567" target="_blank" rel="noopener noreferrer"
                class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink text-white">
-                <i data-lucide="message-circle" class="h-5 w-5"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-message-circle h-5 w-5"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path></svg>
               </span>
               <span>
                 <span class="block text-xs font-bold uppercase tracking-widest text-silver">WhatsApp</span>
                 <span class="mt-0.5 block font-semibold text-ink">Escríbenos directamente</span>
               </span>
-              <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-up-right ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
             </a>
 
             <a href="mailto:info@vidriosmundial.com"
                class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 100ms;">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
-                <i data-lucide="mail" class="h-5 w-5"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-mail h-5 w-5"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg>
               </span>
               <span>
                 <span class="block text-xs font-bold uppercase tracking-widest text-silver">Email</span>
                 <span class="mt-0.5 block font-semibold text-ink">info@vidriosmundial.com</span>
               </span>
-              <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-up-right ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
             </a>
 
             <a href="https://instagram.com/vidriosmundial" target="_blank" rel="noopener noreferrer"
                class="reveal card-shadow group flex cursor-pointer items-center gap-5 rounded-2xl border border-fog bg-white p-6 transition-colors duration-200 hover:border-ink" style="--reveal-delay: 200ms;">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
-                <i data-lucide="instagram" class="h-5 w-5"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-instagram h-5 w-5"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg>
               </span>
               <span>
                 <span class="block text-xs font-bold uppercase tracking-widest text-silver">Instagram</span>
                 <span class="mt-0.5 block font-semibold text-ink">@vidriosmundial</span>
               </span>
-              <i data-lucide="arrow-up-right" class="ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-up-right ml-auto h-5 w-5 text-silver transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
             </a>
 
             <div class="reveal card-shadow flex items-center gap-5 rounded-2xl border border-fog bg-white p-6" style="--reveal-delay: 300ms;">
               <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-mist text-ink">
-                <i data-lucide="map-pin" class="h-5 w-5"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-map-pin h-5 w-5"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg>
               </span>
               <span>
                 <span class="block text-xs font-bold uppercase tracking-widest text-silver">Ubicación</span>
@@ -898,7 +895,7 @@
             <button type="submit"
                     class="group mt-8 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-ink px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-ink/80 sm:w-auto">
               Enviar por WhatsApp
-              <i data-lucide="send" class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-send h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>
             </button>
           </form>
 
@@ -937,21 +934,21 @@
           <ul class="mt-5 space-y-3 text-sm">
             <li>
               <a href="https://wa.me/584141234567" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white">
-                <i data-lucide="message-circle" class="h-4 w-4"></i> WhatsApp
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-message-circle h-4 w-4"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path></svg> WhatsApp
               </a>
             </li>
             <li>
               <a href="mailto:info@vidriosmundial.com" class="inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white">
-                <i data-lucide="mail" class="h-4 w-4"></i> info@vidriosmundial.com
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-mail h-4 w-4"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg> info@vidriosmundial.com
               </a>
             </li>
             <li>
               <a href="https://instagram.com/vidriosmundial" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-white/60 transition-colors duration-200 hover:text-white">
-                <i data-lucide="instagram" class="h-4 w-4"></i> @vidriosmundial
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-instagram h-4 w-4"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line></svg> @vidriosmundial
               </a>
             </li>
             <li class="inline-flex items-center gap-2 text-white/60">
-              <i data-lucide="map-pin" class="h-4 w-4"></i> Caracas, Venezuela
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-map-pin h-4 w-4"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg> Caracas, Venezuela
             </li>
           </ul>
         </div>
@@ -969,9 +966,6 @@
        SCRIPTS
   ============================================================= -->
   <script>
-    // Lucide icons
-    lucide.createIcons();
-
     // ——— Reveal on scroll ———
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
@@ -1027,6 +1021,7 @@
       const allChars = [];
 
       const wrapChars = (el) => {
+        const fullText = el.textContent.replace(/\s+/g, ' ').trim();
         const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
         const textNodes = [];
         while (walker.nextNode()) textNodes.push(walker.currentNode);
@@ -1035,12 +1030,21 @@
           for (const ch of node.textContent) {
             const span = document.createElement('span');
             span.className = 'tw-char';
+            span.setAttribute('aria-hidden', 'true');
             span.textContent = ch;
             frag.appendChild(span);
             allChars.push(span);
           }
           node.parentNode.replaceChild(frag, node);
         });
+        // Screen readers get the text once instead of letter by letter. The h1 carries an aria-label;
+        // paragraphs can't be named with aria-label, so they get a visually hidden copy.
+        if (!el.hasAttribute('aria-label')) {
+          const srText = document.createElement('span');
+          srText.className = 'sr-only';
+          srText.textContent = fullText;
+          el.prepend(srText);
+        }
       };
       twElements.forEach(wrapChars);
 
