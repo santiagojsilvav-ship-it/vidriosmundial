@@ -238,18 +238,46 @@
       box-shadow: 0 1px 24px rgba(10, 10, 10, 0.06);
     }
 
-    /* ——— Nav over hero video: transparent + light, until scrolled past hero ——— */
+    /* ——— Nav over the hero: transparent with a light logo/icon until the hero has fully left
+       from under the navbar (IntersectionObserver in the script), then solid white + dark logo ——— */
     #navbar:not(.scrolled) {
       background-color: transparent;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
+    #navbar .nav-logo img {
+      filter: brightness(1) invert(0) drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+      transition: filter 0.4s ease;
+    }
     #navbar:not(.scrolled) .nav-logo img {
-      filter: brightness(0) invert(1);
-      transition: filter 0.3s ease;
+      filter: brightness(0) invert(1) drop-shadow(0 1px 6px rgba(0, 0, 0, 0.35));
+    }
+    #menu-btn {
+      transition: color 0.4s ease, filter 0.4s ease;
     }
     #navbar:not(.scrolled) #menu-btn {
       color: #ffffff;
+      filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.35));
+    }
+    /* Soft shade at the top of the hero so the light logo reads on bright frames (sky, glass) */
+    .hero-top-scrim {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 9rem;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
+      pointer-events: none;
+    }
+
+    /* ——— Hidden scrollbars (scrolling itself is untouched) ——— */
+    html,
+    body {
+      scrollbar-width: none;
+    }
+    html::-webkit-scrollbar,
+    body::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
     }
 
     /* ——— Focus visibility ——— */
@@ -406,6 +434,7 @@
           />
         </picture>
         <canvas id="hero-scroll-canvas" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+        <div class="hero-top-scrim" aria-hidden="true"></div>
 
         <div id="hero-scroll-overlay" class="absolute inset-0 flex items-end">
           <div class="hero-scroll-scrim"></div>
@@ -1364,18 +1393,33 @@
       currentProgress = targetProgress;
     }
 
-    // ——— Navbar scrolled state (stays transparent through the whole hero video, solid once past it) ———
+    // ——— Navbar: transparent while any part of the hero is still under it, solid once it has left ———
+    // The observer's root is shrunk by the navbar height, so "not intersecting" means the hero's
+    // bottom edge has passed the navbar's bottom edge (a fixed scroll threshold would fire early).
     const navbar = document.getElementById('navbar');
     const waFloat = document.getElementById('wa-float');
-    const onScroll = () => {
-      const heroHeight = heroScrollWrapper ? heroScrollWrapper.offsetHeight : 0;
-      const heroBottom = Math.max(heroHeight - window.innerHeight, 24);
-      const pastHero = window.scrollY > heroBottom - 8;
+    const setPastHero = (pastHero) => {
       navbar.classList.toggle('scrolled', pastHero);
       waFloat.classList.toggle('is-visible', pastHero);
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    if (heroScrollWrapper && 'IntersectionObserver' in window) {
+      let navObserver = null;
+      let observedNavHeight = 0;
+      const observeHero = () => {
+        const navHeight = navbar.offsetHeight;
+        if (navHeight === observedNavHeight) return;
+        observedNavHeight = navHeight;
+        if (navObserver) navObserver.disconnect();
+        navObserver = new IntersectionObserver(([entry]) => setPastHero(!entry.isIntersecting), {
+          rootMargin: `-${navHeight}px 0px 0px 0px`,
+        });
+        navObserver.observe(heroScrollWrapper);
+      };
+      observeHero();
+      window.addEventListener('resize', observeHero, { passive: true });
+    } else {
+      setPastHero(true);
+    }
 
     // ——— Mobile menu ———
     const menuBtn = document.getElementById('menu-btn');
