@@ -1,5 +1,5 @@
 // Tailwind v3 config for the static site (public/index.html). Same theme as the former CDN inline config.
-// Build: npx tailwindcss@3.4.19 -c tailwind.site.config.cjs -i tailwind.input.css -o public/css/site.css --minify
+// Build after editing the HTML: npm run build:css (the compiled public/css/site.css is committed; Vercel does not build)
 module.exports = {
   content: ['./public/index.html'],
   theme: {
