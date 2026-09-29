@@ -1,7 +1,7 @@
-// Tailwind v3 config for the static site (index.html). Same theme as the former CDN inline config.
-// Build: npx tailwindcss@3.4.19 -c tailwind.site.config.cjs -i css/tailwind.input.css -o css/site.css --minify
+// Tailwind v3 config for the static site (public/index.html). Same theme as the former CDN inline config.
+// Build: npx tailwindcss@3.4.19 -c tailwind.site.config.cjs -i tailwind.input.css -o public/css/site.css --minify
 module.exports = {
-  content: ['./index.html'],
+  content: ['./public/index.html'],
   theme: {
     extend: {
       fontFamily: {
