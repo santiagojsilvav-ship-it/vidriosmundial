@@ -369,30 +369,27 @@
   <main id="inicio">
 
     <!-- ============================================================
-         HERO — scroll-scrub full-bleed video
+         HERO — scroll-scrub full-bleed image sequence (canvas)
+         Frames: images/hero-frames/v1/{desktop 1600×900 ×150, mobile 608×1080 ×114}
+         The <picture> paints the first frame instantly (and the last
+         frame with reduced motion); the canvas takes over once frames load.
     ============================================================= -->
     <section id="hero-scroll-wrapper">
       <div class="hero-scroll-sticky">
-        <video
-          id="hero-scroll-video"
-          muted
-          playsinline
-          webkit-playsinline
-          preload="auto"
-          poster="./images/hero-scroll-poster.jpg"
-          class="h-full w-full object-cover"
-          style="position:absolute;inset:0;"
-        >
-          <!--
-            TODO [MOBILE 9:16]: Serve a portrait-cropped video on narrow screens.
-            Option A — <source> with media attribute (limited browser support):
-              <source src="./images/hero-scroll-vertical.mp4" type="video/mp4" media="(max-width: 768px)">
-            Option B — JS swap: detect window.innerWidth < 768 and set
-              heroScrollVideo.src = './images/hero-scroll-vertical.mp4';
-            before the scroll listener runs.
-          -->
-          <source src="./images/hero-scroll.mp4" type="video/mp4">
-        </video>
+        <picture>
+          <source media="(prefers-reduced-motion: reduce) and (max-aspect-ratio: 3/5)" srcset="./images/hero-frames/v1/mobile/113.webp">
+          <source media="(prefers-reduced-motion: reduce)" srcset="./images/hero-frames/v1/desktop/149.webp">
+          <source media="(max-aspect-ratio: 3/5)" srcset="./images/hero-frames/v1/mobile/000.webp">
+          <img
+            id="hero-scroll-fallback"
+            src="./images/hero-frames/v1/desktop/000.webp"
+            alt=""
+            fetchpriority="high"
+            class="h-full w-full object-cover"
+            style="position:absolute;inset:0;"
+          />
+        </picture>
+        <canvas id="hero-scroll-canvas" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
 
         <div id="hero-scroll-overlay" class="absolute inset-0 flex items-end">
           <div class="hero-scroll-scrim"></div>
@@ -996,170 +993,223 @@
       revealEls.forEach((el) => observer.observe(el));
     }
 
-    // ——— Hero scroll-scrub ———
-    const heroScrollVideo = document.getElementById('hero-scroll-video');
+    // ——— Hero scroll-scrub (image sequence on canvas) ———
     const heroScrollWrapper = document.getElementById('hero-scroll-wrapper');
     const heroScrollOverlay = document.getElementById('hero-scroll-overlay');
+    const heroCanvas = document.getElementById('hero-scroll-canvas');
+    const heroFallback = document.getElementById('hero-scroll-fallback');
 
-    if (heroScrollVideo && heroScrollWrapper) {
-      heroScrollVideo.muted = true;
-      heroScrollVideo.playsInline = true;
+    // With reduced motion the <picture> already shows the final frame and CSS shows the text.
+    if (heroScrollWrapper && heroCanvas && !prefersReducedMotion) {
+      const MOBILE_MAX_ASPECT = 0.6; // portrait crops are 608×1080 (≈0.56); must match the <picture> media query
+      const MAX_CONCURRENT = 6;
+      const makeSet = (path, count) => ({ path, count, images: new Array(count), loaded: new Uint8Array(count), loadedCount: 0, queue: null, inflight: 0 });
+      const frameSets = {
+        desktop: makeSet('./images/hero-frames/v1/desktop/', 150),
+        mobile: makeSet('./images/hero-frames/v1/mobile/', 114),
+      };
 
-      if (prefersReducedMotion) {
-        heroScrollVideo.addEventListener('loadedmetadata', () => {
-          heroScrollVideo.currentTime = heroScrollVideo.duration;
-        }, { once: true });
-      } else {
-        let targetProgress = 0;
-        let currentProgress = 0;
-        let seeking = false;
-        let pendingTime = null;
-        let cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
-        let scrubActive = false;
-        let rafId = null;
-        let typewriterPlayed = false;
+      const ctx = heroCanvas.getContext('2d');
+      const sticky = heroCanvas.parentElement;
+      let activeSet = null;
+      let drawnSet = null;
+      let drawnIndex = -1;
+      let targetProgress = 0;
+      let currentProgress = 0;
+      let cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
+      let heroVisible = true;
+      let rafId = null;
+      let typewriterPlayed = false;
 
-        // ——— Typewriter setup ———
-        const twElements = document.querySelectorAll('.hero-typewriter');
-        const heroButtons = document.getElementById('hero-buttons');
-        const allChars = [];
+      // ——— Typewriter setup ———
+      const twElements = document.querySelectorAll('.hero-typewriter');
+      const heroButtons = document.getElementById('hero-buttons');
+      const allChars = [];
 
-        const wrapChars = (el) => {
-          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-          const textNodes = [];
-          while (walker.nextNode()) textNodes.push(walker.currentNode);
-          textNodes.forEach(node => {
-            const frag = document.createDocumentFragment();
-            for (const ch of node.textContent) {
-              const span = document.createElement('span');
-              span.className = 'tw-char';
-              span.textContent = ch;
-              frag.appendChild(span);
-              allChars.push(span);
-            }
-            node.parentNode.replaceChild(frag, node);
-          });
-        };
-        twElements.forEach(wrapChars);
+      const wrapChars = (el) => {
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+        textNodes.forEach(node => {
+          const frag = document.createDocumentFragment();
+          for (const ch of node.textContent) {
+            const span = document.createElement('span');
+            span.className = 'tw-char';
+            span.textContent = ch;
+            frag.appendChild(span);
+            allChars.push(span);
+          }
+          node.parentNode.replaceChild(frag, node);
+        });
+      };
+      twElements.forEach(wrapChars);
 
-        const runTypewriter = () => {
-          const totalChars = allChars.length;
-          const totalDuration = 800;
-          const perChar = totalDuration / totalChars;
-          allChars.forEach((span, i) => {
-            setTimeout(() => span.classList.add('tw-visible'), i * perChar);
-          });
-          setTimeout(() => {
-            heroButtons.style.opacity = '1';
-            heroButtons.style.transform = 'translateY(0)';
-            const secondBtn = heroButtons.querySelector('a:last-child');
-            if (secondBtn) {
-              secondBtn.style.opacity = '1';
-              secondBtn.style.transform = 'translateY(0)';
-            }
-          }, totalDuration);
-        };
-
-        const resetTypewriter = () => {
-          allChars.forEach(span => span.classList.remove('tw-visible'));
-          heroButtons.style.opacity = '0';
-          heroButtons.style.transform = 'translateY(16px)';
+      const runTypewriter = () => {
+        const totalChars = allChars.length;
+        const totalDuration = 800;
+        const perChar = totalDuration / totalChars;
+        allChars.forEach((span, i) => {
+          setTimeout(() => span.classList.add('tw-visible'), i * perChar);
+        });
+        setTimeout(() => {
+          heroButtons.style.opacity = '1';
+          heroButtons.style.transform = 'translateY(0)';
           const secondBtn = heroButtons.querySelector('a:last-child');
           if (secondBtn) {
-            secondBtn.style.opacity = '0';
-            secondBtn.style.transform = 'translateY(16px)';
+            secondBtn.style.opacity = '1';
+            secondBtn.style.transform = 'translateY(0)';
           }
-        };
+        }, totalDuration);
+      };
 
-        heroScrollVideo.addEventListener('seeked', () => {
-          seeking = false;
-          if (pendingTime !== null) {
-            heroScrollVideo.currentTime = pendingTime;
-            pendingTime = null;
-            seeking = true;
-          }
-        });
-
-        window.addEventListener('resize', () => {
-          cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
-        }, { passive: true });
-
-        const readScroll = () => {
-          const rect = heroScrollWrapper.getBoundingClientRect();
-          targetProgress = Math.max(0, Math.min(1, -rect.top / cachedScrollable));
-        };
-
-        const lerpLoop = () => {
-          currentProgress += (targetProgress - currentProgress) * 0.12;
-          if (Math.abs(currentProgress - targetProgress) < 0.0005) currentProgress = targetProgress;
-
-          if (heroScrollVideo.duration) {
-            const targetTime = currentProgress * heroScrollVideo.duration;
-            if (Math.abs(heroScrollVideo.currentTime - targetTime) < 0.05) {
-              // already there
-            } else if (seeking) {
-              pendingTime = targetTime;
-            } else {
-              heroScrollVideo.currentTime = targetTime;
-              seeking = true;
-            }
-          }
-
-          const overlayVisible = currentProgress >= 0.7;
-          heroScrollOverlay.style.opacity = overlayVisible ? 1 : 0;
-          if (overlayVisible && !typewriterPlayed) {
-            typewriterPlayed = true;
-            runTypewriter();
-          } else if (!overlayVisible && typewriterPlayed) {
-            typewriterPlayed = false;
-            resetTypewriter();
-          }
-
-          rafId = requestAnimationFrame(lerpLoop);
-        };
-
-        const activateScrub = () => {
-          if (scrubActive) return;
-          scrubActive = true;
-          cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
-          readScroll();
-          currentProgress = targetProgress;
-
-          window.addEventListener('scroll', readScroll, { passive: true });
-          rafId = requestAnimationFrame(lerpLoop);
-        };
-
-        // Prime Safari's decoder pipeline
-        const primeAndWait = () => {
-          const playPromise = heroScrollVideo.play();
-          if (playPromise) {
-            playPromise.then(() => {
-              heroScrollVideo.pause();
-              heroScrollVideo.currentTime = 0;
-            }).catch(() => {
-              heroScrollVideo.pause();
-              heroScrollVideo.currentTime = 0;
-            });
-          } else {
-            heroScrollVideo.pause();
-            heroScrollVideo.currentTime = 0;
-          }
-        };
-
-        if (heroScrollVideo.readyState >= 4) {
-          primeAndWait();
-          activateScrub();
-        } else {
-          heroScrollVideo.addEventListener('canplaythrough', () => {
-            primeAndWait();
-            activateScrub();
-          }, { once: true });
-          // Fallback if canplaythrough never fires (some browsers)
-          heroScrollVideo.addEventListener('loadedmetadata', () => {
-            setTimeout(() => { if (!scrubActive) activateScrub(); }, 1000);
-          }, { once: true });
+      const resetTypewriter = () => {
+        allChars.forEach(span => span.classList.remove('tw-visible'));
+        heroButtons.style.opacity = '0';
+        heroButtons.style.transform = 'translateY(16px)';
+        const secondBtn = heroButtons.querySelector('a:last-child');
+        if (secondBtn) {
+          secondBtn.style.opacity = '0';
+          secondBtn.style.transform = 'translateY(16px)';
         }
+      };
+
+      // rAF only runs while the hero is on screen (tick is defined below; kick is only called after setup)
+      const kick = () => {
+        if (rafId === null && heroVisible) rafId = requestAnimationFrame(tick);
+      };
+
+      // ——— Frame loading: coarse to fine (ends, every 16th, 8th, 4th, 2nd, rest) ———
+      const loadOrder = (count) => {
+        const order = [0, count - 1];
+        const seen = new Set(order);
+        for (let stride = 16; stride >= 1; stride >>= 1) {
+          for (let i = 0; i < count; i += stride) {
+            if (!seen.has(i)) { seen.add(i); order.push(i); }
+          }
+        }
+        return order;
+      };
+
+      const frameUrl = (set, i) => `${set.path}${String(i).padStart(3, '0')}.webp`;
+
+      const loadFrame = (set, i) => {
+        const url = new URL(frameUrl(set, i), location.href).href;
+        // Reuse the already-downloading first frame from the <picture> instead of fetching it twice
+        const img = heroFallback && heroFallback.currentSrc === url ? heroFallback : new Image();
+        if (img !== heroFallback) img.src = url;
+        // decode() off the main thread so drawing never stalls on a decode
+        return img.decode().then(() => {
+          set.images[i] = img;
+          set.loaded[i] = 1;
+          set.loadedCount++;
+          if (set === activeSet) heroCanvas.dataset.loaded = set.loadedCount;
+        });
+      };
+
+      // Only the active set downloads; switching sets (e.g. rotating a tablet) pauses the other
+      const pump = (set) => {
+        if (!set.queue) set.queue = loadOrder(set.count);
+        while (set === activeSet && set.inflight < MAX_CONCURRENT && set.queue.length) {
+          const i = set.queue.shift();
+          set.inflight++;
+          loadFrame(set, i)
+            .then(() => { if (set === activeSet) kick(); })
+            .catch(() => {})
+            .finally(() => { set.inflight--; pump(set); });
+        }
+      };
+
+      // Nearest frame that has actually loaded, so a fast scroll never freezes on a missing frame
+      const nearestLoaded = (set, target) => {
+        for (let d = 0; d < set.count; d++) {
+          if (target - d >= 0 && set.loaded[target - d]) return target - d;
+          if (target + d < set.count && set.loaded[target + d]) return target + d;
+        }
+        return -1;
+      };
+
+      // Same framing as object-fit: cover
+      const drawFrame = (img) => {
+        const cw = heroCanvas.width;
+        const ch = heroCanvas.height;
+        const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+        const w = img.naturalWidth * scale;
+        const h = img.naturalHeight * scale;
+        ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+      };
+
+      const resizeCanvas = () => {
+        cachedScrollable = heroScrollWrapper.offsetHeight - window.innerHeight;
+        const rect = sticky.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = Math.round(rect.width * dpr);
+        const height = Math.round(rect.height * dpr);
+
+        const nextSet = rect.width / rect.height <= MOBILE_MAX_ASPECT ? frameSets.mobile : frameSets.desktop;
+        if (nextSet !== activeSet) {
+          activeSet = nextSet;
+          heroCanvas.dataset.count = activeSet.count;
+          heroCanvas.dataset.loaded = activeSet.loadedCount;
+          drawnIndex = -1;
+          pump(activeSet);
+        }
+        // Mobile toolbars fire resize without changing the 100vh box; only reset the canvas on a real size change
+        if (heroCanvas.width !== width || heroCanvas.height !== height) {
+          heroCanvas.width = width;
+          heroCanvas.height = height;
+          ctx.imageSmoothingQuality = 'high';
+          drawnIndex = -1;
+        }
+        kick();
+      };
+
+      const readScroll = () => {
+        const rect = heroScrollWrapper.getBoundingClientRect();
+        targetProgress = Math.max(0, Math.min(1, -rect.top / cachedScrollable));
+        kick();
+      };
+
+      const tick = () => {
+        rafId = null;
+        currentProgress += (targetProgress - currentProgress) * 0.12;
+        if (Math.abs(currentProgress - targetProgress) < 0.0005) currentProgress = targetProgress;
+
+        const set = activeSet;
+        const index = nearestLoaded(set, Math.round(currentProgress * (set.count - 1)));
+        if (index !== -1 && (index !== drawnIndex || set !== drawnSet)) {
+          drawFrame(set.images[index]);
+          drawnIndex = index;
+          drawnSet = set;
+          heroCanvas.dataset.frame = index;
+        }
+
+        const overlayVisible = currentProgress >= 0.7;
+        heroScrollOverlay.style.opacity = overlayVisible ? 1 : 0;
+        if (overlayVisible && !typewriterPlayed) {
+          typewriterPlayed = true;
+          runTypewriter();
+        } else if (!overlayVisible && typewriterPlayed) {
+          typewriterPlayed = false;
+          resetTypewriter();
+        }
+
+        // Keep animating only while easing toward the target; scroll, resize and frame loads restart it
+        if (currentProgress !== targetProgress) kick();
+      };
+
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => {
+          heroVisible = entry.isIntersecting;
+          if (heroVisible) kick();
+          else if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
+        }).observe(heroScrollWrapper);
       }
+
+      window.addEventListener('scroll', readScroll, { passive: true });
+      window.addEventListener('resize', resizeCanvas, { passive: true });
+      resizeCanvas();
+      readScroll();
+      currentProgress = targetProgress;
     }
 
     // ——— Navbar scrolled state (stays transparent through the whole hero video, solid once past it) ———
