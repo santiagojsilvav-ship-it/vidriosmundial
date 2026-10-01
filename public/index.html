@@ -261,6 +261,50 @@
     html.menu-open #navbar #menu-btn { color: #ffffff; filter: none; }
     html.menu-open .wa-float.is-visible { opacity: 0; visibility: hidden; }
 
+    /* ——— Projects: stacked cards below 1024px, grid above ———
+       Each card is sticky with a staggered top, so the next one slides up over it; JS scales the
+       covered card down to 0.94 and dims it (transform/opacity only). The container is the cards
+       plus a 4rem tail, so the finished stack rests briefly and then scrolls on as one block
+       (no spacer section, no gap). Driven by the user's scroll, so it also runs with reduced motion. */
+    .stack {
+      display: grid;
+      gap: 1.5rem;
+    }
+    .stack-card-inner {
+      position: relative;
+      transform-origin: 50% 0;
+    }
+    .stack-shade {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background-color: #000000;
+      opacity: 0;
+      pointer-events: none;
+    }
+    @media (min-width: 1024px) {
+      .stack { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 1023px) {
+      .stack {
+        gap: 0;
+        max-width: 28rem;
+        margin-inline: auto;
+      }
+      /* Tail inside the stack's content box (sticky limits ignore padding): lets the last card settle
+         in its slot, with the stacked edges visible, before the whole stack scrolls on */
+      .stack::after {
+        content: '';
+        height: 4rem;
+      }
+      .stack-card {
+        position: sticky;
+        top: calc(6rem + var(--i, 0) * 0.875rem);
+      }
+      .stack-card + .stack-card { margin-top: 2rem; }
+      .stack-card-inner { will-change: transform; }
+    }
+
     /* ——— Service card lift hover ——— */
     .service-card {
       position: relative;
@@ -753,54 +797,74 @@
           </a>
         </div>
 
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Phones/tablets: the cards stack on scroll (sticky, each new one covers the previous,
+             which shrinks to 0.94 and dims). Desktop: three-column grid. -->
+        <div class="stack" data-stack>
 
           <!-- Project 1 -->
-          <figure class="group cursor-pointer">
-            <div data-anim="mask" class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-white/5">
-              <img
-                src="./images/proyecto-fachada-flotante.jpg"
-                alt="Fachada flotante de vidrio con anclajes puntuales tipo araña"
-                class="h-full w-full object-cover"
-                loading="lazy"
-              />
+          <figure class="stack-card group cursor-pointer" style="--i: 0">
+            <div class="stack-card-inner rounded-[1.25rem] border border-white/10 bg-[#141414] p-3">
+              <div data-anim="mask" class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-white/5">
+                <img
+                  src="./images/proyecto-fachada-flotante.jpg"
+                  alt="Fachada flotante de vidrio con anclajes puntuales tipo araña"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <figcaption class="flex items-end justify-between gap-4 px-2 pb-2 pt-4">
+                <span>
+                  <span class="block text-xs font-bold uppercase tracking-widest text-silver">Estructural</span>
+                  <span class="mt-1 block font-display text-xl text-white">Vidrio Estructural</span>
+                </span>
+                <span class="font-display text-sm italic text-silver">01</span>
+              </figcaption>
+              <div class="stack-shade" aria-hidden="true"></div>
             </div>
-            <figcaption data-anim="fade-up" class="mt-4">
-              <p class="text-xs font-bold uppercase tracking-widest text-silver">Estructural</p>
-              <p class="mt-1 font-display text-lg text-white">Vidrio Estructural</p>
-            </figcaption>
           </figure>
 
           <!-- Project 2 -->
-          <figure class="group cursor-pointer">
-            <div data-anim="mask" class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-white/5">
-              <img
-                src="./images/proyecto-muro-cortina.jpg"
-                alt="Torre corporativa con muro cortina de vidrio verde"
-                class="h-full w-full object-cover"
-                loading="lazy"
-              />
+          <figure class="stack-card group cursor-pointer" style="--i: 1">
+            <div class="stack-card-inner rounded-[1.25rem] border border-white/10 bg-[#141414] p-3">
+              <div data-anim="mask" class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-white/5">
+                <img
+                  src="./images/proyecto-muro-cortina.jpg"
+                  alt="Torre corporativa con muro cortina de vidrio verde"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <figcaption class="flex items-end justify-between gap-4 px-2 pb-2 pt-4">
+                <span>
+                  <span class="block text-xs font-bold uppercase tracking-widest text-silver">Corporativo</span>
+                  <span class="mt-1 block font-display text-xl text-white">Sistema Aluprom</span>
+                </span>
+                <span class="font-display text-sm italic text-silver">02</span>
+              </figcaption>
+              <div class="stack-shade" aria-hidden="true"></div>
             </div>
-            <figcaption data-anim="fade-up" class="mt-4">
-              <p class="text-xs font-bold uppercase tracking-widest text-silver">Corporativo</p>
-              <p class="mt-1 font-display text-lg text-white">Sistema Aluprom</p>
-            </figcaption>
           </figure>
 
           <!-- Project 3 -->
-          <figure class="group cursor-pointer">
-            <div data-anim="mask" class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-white/5">
-              <img
-                src="./images/proyecto-diseno-fachadas.jpg"
-                alt="Render arquitectónico de torre con fachada curva de aluminio y vidrio"
-                class="h-full w-full object-cover"
-                loading="lazy"
-              />
+          <figure class="stack-card group cursor-pointer" style="--i: 2">
+            <div class="stack-card-inner rounded-[1.25rem] border border-white/10 bg-[#141414] p-3">
+              <div data-anim="mask" class="img-zoom aspect-[4/5] overflow-hidden rounded-2xl bg-white/5">
+                <img
+                  src="./images/proyecto-diseno-fachadas.jpg"
+                  alt="Render arquitectónico de torre con fachada curva de aluminio y vidrio"
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              <figcaption class="flex items-end justify-between gap-4 px-2 pb-2 pt-4">
+                <span>
+                  <span class="block text-xs font-bold uppercase tracking-widest text-silver">Arquitectónico</span>
+                  <span class="mt-1 block font-display text-xl text-white">Fachada Arquitectónica</span>
+                </span>
+                <span class="font-display text-sm italic text-silver">03</span>
+              </figcaption>
+              <div class="stack-shade" aria-hidden="true"></div>
             </div>
-            <figcaption data-anim="fade-up" class="mt-4">
-              <p class="text-xs font-bold uppercase tracking-widest text-silver">Arquitectónico</p>
-              <p class="mt-1 font-display text-lg text-white">Fachada Arquitectónica</p>
-            </figcaption>
           </figure>
 
         </div>
@@ -1504,6 +1568,49 @@
       resizeCanvas();
       readScroll();
       currentProgress = targetProgress;
+    }
+
+    // ——— Projects stack (below 1024px) ———
+    // While card i+1 travels the last card-height before its sticky slot, card i scales from 1 to
+    // 0.94 and its shade goes from 0 to 0.4. Only runs while the section is on screen.
+    const stack = document.querySelector('[data-stack]');
+    if (stack) {
+      const stackCards = [...stack.querySelectorAll('.stack-card')];
+      const stackQuery = window.matchMedia('(max-width: 1023px)');
+      let stackVisible = false;
+      let stackRaf = null;
+
+      const updateStack = () => {
+        stackRaf = null;
+        const active = stackQuery.matches;
+        stackCards.forEach((card, i) => {
+          const inner = card.firstElementChild;
+          const shade = inner.querySelector('.stack-shade');
+          const next = stackCards[i + 1];
+          let p = 0;
+          if (active && next) {
+            const nextTop = next.getBoundingClientRect().top;
+            const nextSlot = parseFloat(getComputedStyle(next).top) || 0;
+            const travel = card.offsetHeight;
+            p = Math.min(1, Math.max(0, 1 - (nextTop - nextSlot) / travel));
+          }
+          inner.style.transform = p ? `scale(${(1 - 0.06 * p).toFixed(4)})` : '';
+          shade.style.opacity = p ? (0.4 * p).toFixed(3) : '';
+        });
+      };
+      const requestStack = () => {
+        if (stackRaf === null && stackVisible) stackRaf = requestAnimationFrame(updateStack);
+      };
+
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(([entry]) => {
+          stackVisible = entry.isIntersecting;
+          requestStack();
+        }).observe(stack);
+      }
+      window.addEventListener('scroll', requestStack, { passive: true });
+      window.addEventListener('resize', requestStack, { passive: true });
+      stackQuery.addEventListener('change', () => { stackVisible = true; updateStack(); });
     }
 
     // ——— Navbar: transparent while any part of the hero is still under it, solid once it has left ———
