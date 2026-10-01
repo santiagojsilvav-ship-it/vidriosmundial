@@ -15,6 +15,12 @@ module.exports = {
         fog: '#e8eaed',
         silver: '#9ca3af',
         accent: '#004480',
+        // Palette B (warm light/dark rhythm). AA-checked: muted on bone 5.7:1, stone 5.2:1, sand 4.7:1
+        bone: '#f6f5f2',
+        stone: '#edebe6',
+        sand: '#e4e1da',
+        line: '#dcd8cf',
+        muted: '#64615b',
       },
       letterSpacing: {
         widest2: '0.25em',
