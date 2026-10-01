@@ -1455,9 +1455,10 @@
       //   lq  v1: light sequence (1600×900 ×150 / 608×1080 ×114, WebP q75) → the scrub responds fast
       //   hq  v2: every source frame at 1920×1080 (×227) / 608×1080 (×114), WebP q85, first and
       //       last frames q92. Streamed in the background and swapped in frame by frame.
-      // hqFrom: on mobile only the 70–100% stretch (where the text sits and people stop to read)
-      // plus the first frame are upgraded, to spare mobile data; desktop upgrades everything.
-      const MOBILE_HQ_FROM = 0.7;
+      // hqFrom: on mobile the first frame and the 35–100% stretch are upgraded (+2.2 MB in the
+      // background, measured on Fast 4G with no effect on when the scrub responds); desktop
+      // upgrades everything. Either way only while the hero is on screen, nearest frames first.
+      const MOBILE_HQ_FROM = 0.35;
       // Data saver on: upgrade only the first and last frames
       const SAVE_DATA = Boolean(navigator.connection && navigator.connection.saveData);
       const makeSet = (path, count) => ({ path, count, images: new Array(count), loaded: new Uint8Array(count), loadedCount: 0 });
@@ -1559,7 +1560,9 @@
       //   1. light sequence, coarse pass (ends + every 16th) → the whole scrub works almost at once
       //   2. the last frame in high quality (the resting frame behind the text)
       //   3. rest of the light sequence, coarse to fine (every 8th, 4th, 2nd, rest)
-      //   4. high-quality frames, coarse to fine (mobile: only from hqFrom on, plus the first frame)
+      // Then the remaining high-quality frames are picked one by one (nextHqIndex): nearest to where
+      // the user is in the hero, and only while the hero is on screen, so someone who scrolls past
+      // and never comes back does not download the rest (mobile: only frames from hqFrom on).
       const buildQueue = (layout) => {
         const { lq, hq } = layout;
         const jobs = [];
@@ -1570,7 +1573,6 @@
           seen.add(key);
           jobs.push([set, i]);
         };
-        const hqAllowed = (i) => i === 0 || i === hq.count - 1 || i / (hq.count - 1) >= layout.hqFrom;
         // The <picture> already shows the first frame in high quality: adopt it and skip its light twin
         const pictureIsHq0 = heroFallback && heroFallback.currentSrc === new URL(frameUrl(hq, 0), location.href).href;
         add(pictureIsHq0 ? hq : lq, 0);
@@ -1581,10 +1583,25 @@
           for (let i = 0; i < lq.count; i += stride) if (!(i === 0 && pictureIsHq0)) add(lq, i);
         }
         add(hq, 0);
-        for (let stride = 16; stride >= 1; stride >>= 1) {
-          for (let i = 0; i < hq.count; i += stride) if (hqAllowed(i)) add(hq, i);
-        }
+        layout.hqPending = [];
+        for (let i = 1; i < hq.count - 1; i++) if (hqAllowed(layout, i) && !hq.loaded[i]) layout.hqPending.push(i);
         return jobs;
+      };
+
+      const hqAllowed = (layout, i) => i === 0 || i === layout.hq.count - 1 || i / (layout.hq.count - 1) >= layout.hqFrom;
+
+      const nextHqIndex = (layout) => {
+        const { hq, hqPending } = layout;
+        if (!heroVisible || !hqPending.length) return -1;
+        const target = Math.round(targetProgress * (hq.count - 1));
+        let bestPos = -1;
+        let bestScore = Infinity;
+        hqPending.forEach((i, pos) => {
+          // nearest first; on a tie prefer the frame ahead (people mostly scroll down)
+          const score = Math.abs(i - target) - (i >= target ? 0.5 : 0);
+          if (score < bestScore) { bestScore = score; bestPos = pos; }
+        });
+        return hqPending.splice(bestPos, 1)[0];
       };
 
       const frameUrl = (set, i) => `${set.path}${String(i).padStart(3, '0')}.webp`;
@@ -1593,6 +1610,9 @@
         const { lq, hq } = activeLayout;
         heroCanvas.dataset.loaded = lq.loadedCount;
         heroCanvas.dataset.hqLoaded = hq.loadedCount;
+        let hqTotal = 0;
+        for (let i = 0; i < hq.count; i++) if (hqAllowed(activeLayout, i)) hqTotal++;
+        heroCanvas.dataset.hqTotal = hqTotal;
       };
 
       const loadFrame = (set, i) => {
@@ -1612,8 +1632,14 @@
       // Only the active layout downloads; switching (e.g. rotating a tablet) pauses the other one
       const pump = (layout) => {
         if (!layout.queue) layout.queue = buildQueue(layout);
-        while (layout === activeLayout && layout.inflight < MAX_CONCURRENT && layout.queue.length) {
-          const [set, i] = layout.queue.shift();
+        while (layout === activeLayout && layout.inflight < MAX_CONCURRENT) {
+          let job = layout.queue.shift();
+          if (!job) {
+            const next = nextHqIndex(layout);
+            if (next === undefined || next === -1) break;
+            job = [layout.hq, next];
+          }
+          const [set, i] = job;
           layout.inflight++;
           loadFrame(set, i)
             .then(() => { if (layout === activeLayout) kick(); })
@@ -1722,6 +1748,8 @@
       if ('IntersectionObserver' in window) {
         new IntersectionObserver(([entry]) => {
           heroVisible = entry.isIntersecting;
+          // resume high-quality downloads when the hero comes back on screen
+          if (heroVisible && activeLayout) pump(activeLayout);
           if (heroVisible) kick();
           else if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
         }).observe(heroScrollWrapper);
