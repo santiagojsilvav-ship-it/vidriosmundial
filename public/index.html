@@ -214,13 +214,35 @@
     }
     .js [data-anim="title"].is-in .w > span { opacity: 1; transform: none; }
 
-    /* ——— Site menu: full-screen dark panel with blur, numbered serif links ——— */
+    /* ——— Menu button: the lines gather in the middle, then turn into an X (with a little spring);
+       pressing shrinks the icon and sends out a ring as visual "tap" feedback ——— */
+    #menu-btn {
+      position: relative;
+      border-radius: 9999px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #menu-btn::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border: 1px solid currentColor;
+      border-radius: inherit;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #menu-btn.is-pressed::after { animation: menu-ring 0.55s var(--ease); }
+    @keyframes menu-ring {
+      from { opacity: 0.55; transform: scale(0.6); }
+      to   { opacity: 0; transform: scale(1.4); }
+    }
     .menu-toggle-box {
       position: relative;
       display: block;
       width: 24px;
       height: 16px;
+      transition: transform 0.2s var(--ease);
     }
+    #menu-btn:active .menu-toggle-box { transform: scale(0.86); }
     .menu-toggle-box span {
       position: absolute;
       left: 0;
@@ -228,15 +250,23 @@
       height: 2px;
       border-radius: 2px;
       background-color: currentColor;
-      transition: top 0.35s var(--ease), transform 0.45s var(--ease), opacity 0.25s ease;
+      /* closing: un-rotate first, then spread back out */
+      transition: top 0.22s var(--ease) 0.18s, transform 0.22s var(--ease), opacity 0.1s linear 0.18s;
     }
     .menu-toggle-box span:nth-child(1) { top: 0; }
     .menu-toggle-box span:nth-child(2) { top: 7px; }
     .menu-toggle-box span:nth-child(3) { top: 14px; }
+    .menu-open .menu-toggle-box span {
+      /* opening: gather in the middle, then rotate */
+      transition: top 0.22s var(--ease), transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s, opacity 0.1s linear 0.1s;
+    }
     .menu-open .menu-toggle-box span:nth-child(1) { top: 7px; transform: rotate(45deg); }
-    .menu-open .menu-toggle-box span:nth-child(2) { opacity: 0; transform: scaleX(0.2); }
+    .menu-open .menu-toggle-box span:nth-child(2) { opacity: 0; transform: scaleX(0); }
     .menu-open .menu-toggle-box span:nth-child(3) { top: 7px; transform: rotate(-45deg); }
 
+    /* ——— Menu: a dark panel revealed by a circle growing from the button (clip-path; origin and
+       radius set by JS), big serif links rising out of masks one after another, lots of air and two
+       discreet buttons at the bottom. Closing reverses it back into the button. ——— */
     .site-menu {
       position: fixed;
       inset: 0;
@@ -244,61 +274,89 @@
       overflow-y: auto;
       overscroll-behavior: contain;
       color: #ffffff;
-      background-color: rgba(10, 10, 10, 0.94);
-      backdrop-filter: blur(20px) saturate(1.1);
-      -webkit-backdrop-filter: blur(20px) saturate(1.1);
-      opacity: 0;
+      background: radial-gradient(120% 80% at 100% 0%, #1c1c1c 0%, #0a0a0a 62%);
       visibility: hidden;
-      transition: opacity 0.45s var(--ease), visibility 0s linear 0.45s;
+      clip-path: circle(0px at var(--menu-x, calc(100% - 2.75rem)) var(--menu-y, 2.75rem));
+      transition: clip-path 0.6s cubic-bezier(0.77, 0, 0.18, 1), visibility 0s linear 0.6s;
     }
     .site-menu.is-open {
-      opacity: 1;
       visibility: visible;
-      transition-delay: 0s;
+      clip-path: circle(var(--menu-r, 150vmax) at var(--menu-x, calc(100% - 2.75rem)) var(--menu-y, 2.75rem));
+      transition: clip-path 0.85s cubic-bezier(0.77, 0, 0.18, 1);
     }
     .site-menu-links {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.25rem, 1.5vh, 1rem);
       margin: 0;
       padding: 0;
       list-style: none;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .site-menu-links li,
-    .site-menu-footer {
-      opacity: 0;
-      transform: translate3d(0, 16px, 0);
-      transition: opacity 0.5s var(--ease), transform 0.6s var(--ease);
-    }
-    .site-menu-links li { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-    .site-menu.is-open .site-menu-links li,
-    .site-menu.is-open .site-menu-footer {
-      opacity: 1;
-      transform: none;
-      transition-delay: calc(120ms + var(--i, 0) * 70ms);
+    .site-menu-links li {
+      overflow: hidden;
+      padding-bottom: 0.1em;
     }
     .site-menu-link {
-      display: flex;
+      display: inline-flex;
       align-items: baseline;
       gap: 1.25rem;
-      padding: 1rem 0;
       font-family: 'Instrument Serif', serif;
-      font-size: clamp(2.5rem, 9vw, 5rem);
-      line-height: 1;
+      font-size: clamp(3rem, 12vw, 6.5rem);
+      line-height: 1.02;
       color: #ffffff;
-      transition: color 0.3s ease, transform 0.4s var(--ease);
     }
-    .site-menu-link:hover,
-    .site-menu-link:focus-visible {
-      transform: translate3d(0.5rem, 0, 0);
-    }
-    .site-menu-links:hover .site-menu-link:not(:hover) { color: rgba(255, 255, 255, 0.45); }
     .site-menu-num {
       min-width: 1.75rem;
       font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 600;
       letter-spacing: 0.2em;
       color: rgba(255, 255, 255, 0.45);
-      transform: translateY(-0.2em);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .site-menu-label {
+      display: inline-block;
+      transform: translate3d(0, 110%, 0);
+      transition: transform 0.35s var(--ease), color 0.3s ease;
+    }
+    .site-menu.is-open .site-menu-label {
+      transform: none;
+      transition: transform 0.8s var(--ease) calc(280ms + var(--i, 0) * 80ms), color 0.3s ease;
+    }
+    .site-menu.is-open .site-menu-num {
+      opacity: 1;
+      transition: opacity 0.6s ease calc(480ms + var(--i, 0) * 80ms);
+    }
+    .site-menu-links:hover .site-menu-link:not(:hover) .site-menu-label { color: rgba(255, 255, 255, 0.4); }
+    .site-menu-link:hover .site-menu-label { font-style: italic; }
+    .site-menu:focus { outline: none; }
+    .site-menu-footer {
+      opacity: 0;
+      transform: translate3d(0, 12px, 0);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .site-menu.is-open .site-menu-footer {
+      opacity: 1;
+      transform: none;
+      transition: opacity 0.6s ease 0.62s, transform 0.7s var(--ease) 0.62s;
+    }
+    .site-menu-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+      transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .site-menu-action:hover {
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.45);
+      background-color: rgba(255, 255, 255, 0.06);
     }
     .site-menu a:focus-visible,
     .menu-open #menu-btn:focus-visible,
@@ -307,15 +365,19 @@
     }
     /* While the menu is open the navbar floats over it: transparent, light logo and icon */
     html.menu-open #navbar,
-    html.menu-open #navbar.scrolled {
+    html.menu-open #navbar.scrolled,
+    html.menu-closing #navbar,
+    html.menu-closing #navbar.scrolled {
       background-color: transparent;
       border-bottom-color: transparent;
       box-shadow: none;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
     }
-    html.menu-open #navbar .nav-logo img { filter: brightness(0) invert(1); }
-    html.menu-open #navbar #menu-btn { color: #ffffff; filter: none; }
+    html.menu-open #navbar .nav-logo img,
+    html.menu-closing #navbar .nav-logo img { filter: brightness(0) invert(1); }
+    html.menu-open #navbar #menu-btn,
+    html.menu-closing #navbar #menu-btn { color: #ffffff; filter: none; }
     html.menu-open .wa-float.is-visible { opacity: 0; visibility: hidden; }
 
     /* ——— Projects: stacked cards below 1024px, grid above ———
@@ -544,7 +606,7 @@
          toned down  word/letter "writing" effects and the title curtain -> the text fades in
                    as a whole (JS skips the split), entrances from the sides -> the same short
                    rise, the springy "pop" -> fade, the 1.08 photo zoom, photo parallax and hover
-                   zooms/lifts -> off, animated counters -> final number (JS), smooth anchor
+                   zooms/lifts -> off, the menu's circular reveal -> a plain fade, animated counters -> final number (JS), smooth anchor
                    scrolling -> instant.
        Why: large lateral travel, zooms and rapid per-letter motion are the classic triggers for
        motion sensitivity; opacity and very short vertical moves are not. */
@@ -572,6 +634,22 @@
       .parallax {
         inset: 0;
         transform: none !important;
+      }
+      .site-menu,
+      .site-menu.is-open {
+        clip-path: none;
+      }
+      .site-menu {
+        opacity: 0;
+        transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+      }
+      .site-menu.is-open {
+        opacity: 1;
+        transition: opacity 0.35s ease;
+      }
+      .site-menu-label,
+      .site-menu.is-open .site-menu-label {
+        transform: none;
       }
       .js [data-anim="mask"] img,
       .js [data-anim="mask"].is-in img,
@@ -614,32 +692,29 @@
   <!-- ============================================================
        MENU — full-screen overlay (opened by #menu-btn)
   ============================================================= -->
-  <div id="site-menu" class="site-menu" role="dialog" aria-modal="true" aria-label="Menú del sitio">
-    <div class="mx-auto flex min-h-full max-w-7xl flex-col justify-between gap-12 px-6 pb-10 pt-28 lg:px-10 lg:pb-14 lg:pt-36">
+  <div id="site-menu" class="site-menu" role="dialog" aria-modal="true" aria-label="Menú del sitio" tabindex="-1">
+    <div class="mx-auto flex min-h-full max-w-7xl flex-col justify-between gap-16 px-6 pb-10 pt-32 lg:px-10 lg:pb-14 lg:pt-40">
       <nav aria-label="Secciones">
         <ol class="site-menu-links">
-          <li style="--i: 0"><a href="#servicios" class="site-menu-link"><span class="site-menu-num">01</span>Servicios</a></li>
-          <li style="--i: 1"><a href="#proyectos" class="site-menu-link"><span class="site-menu-num">02</span>Proyectos</a></li>
-          <li style="--i: 2"><a href="#nosotros" class="site-menu-link"><span class="site-menu-num">03</span>Nosotros</a></li>
-          <li style="--i: 3"><a href="#contacto" class="site-menu-link"><span class="site-menu-num">04</span>Contacto</a></li>
+          <li style="--i: 0"><a href="#servicios" class="site-menu-link"><span class="site-menu-num">01</span><span class="site-menu-label">Servicios</span></a></li>
+          <li style="--i: 1"><a href="#proyectos" class="site-menu-link"><span class="site-menu-num">02</span><span class="site-menu-label">Proyectos</span></a></li>
+          <li style="--i: 2"><a href="#nosotros" class="site-menu-link"><span class="site-menu-num">03</span><span class="site-menu-label">Nosotros</span></a></li>
+          <li style="--i: 3"><a href="#contacto" class="site-menu-link"><span class="site-menu-num">04</span><span class="site-menu-label">Contacto</span></a></li>
         </ol>
       </nav>
 
-      <div class="site-menu-footer" style="--i: 4">
-        <div class="flex flex-col gap-3 sm:flex-row">
-          <a href="#contacto" class="group inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-semibold text-ink transition-colors duration-200 hover:bg-white/90">
+      <div class="site-menu-footer flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-wrap gap-3">
+          <a href="#contacto" class="site-menu-action">
             Solicitar cotización
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-right h-4 w-4 transition-transform duration-300 group-hover:translate-x-1"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="lucide lucide-arrow-right h-3.5 w-3.5"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
           </a>
-          <a href="#contacto" data-whatsapp="Hola, vengo de la página web de Vidrios Mundial y quisiera más información." target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/10">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-4 w-4"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-            Escríbanos por WhatsApp
+          <a href="#contacto" data-whatsapp="Hola, vengo de la página web de Vidrios Mundial y quisiera más información." target="_blank" rel="noopener noreferrer" class="site-menu-action">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="h-3.5 w-3.5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+            WhatsApp
           </a>
         </div>
-        <div class="mt-8 flex flex-col gap-2 text-sm text-white/55 sm:flex-row sm:items-center sm:justify-between">
-          <p class="text-xs font-bold uppercase tracking-widest2 text-white/55">Caracas · Venezuela · Desde 1972</p>
-          <a href="mailto:info@vidriosmundial.com" class="transition-colors duration-200 hover:text-white">info@vidriosmundial.com</a>
-        </div>
+        <p class="text-[0.7rem] font-semibold uppercase tracking-widest2 text-white/50">Caracas · Venezuela · Desde 1972</p>
       </div>
     </div>
   </div>
@@ -1738,6 +1813,7 @@
     const pageRegions = [document.querySelector('main'), document.querySelector('footer'), document.getElementById('wa-float')];
     let menuOpen = false;
     let lockedScrollY = 0;
+    let menuClosingTimer = null;
 
     const lockScroll = () => {
       lockedScrollY = window.scrollY;
@@ -1762,15 +1838,38 @@
       menuBtn.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
       pageRegions.forEach((el) => { if (el) el.inert = open; });
       if (open) {
+        // The reveal circle grows from the button's centre to the farthest corner
+        const r = menuBtn.getBoundingClientRect();
+        const x = r.left + r.width / 2;
+        const y = r.top + r.height / 2;
+        const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+        siteMenu.style.setProperty('--menu-x', `${x}px`);
+        siteMenu.style.setProperty('--menu-y', `${y}px`);
+        siteMenu.style.setProperty('--menu-r', `${Math.ceil(radius) + 8}px`);
         lockScroll();
-        siteMenu.querySelector('.site-menu-link').focus({ preventScroll: true });
+        clearTimeout(menuClosingTimer);
+        document.documentElement.classList.remove('menu-closing');
+        // Focus the dialog itself (no ring on a link at open); the first Tab reaches "Servicios"
+        siteMenu.focus({ preventScroll: true });
       } else {
         unlockScroll();
+        // Keep the navbar light-on-dark while the circle still covers it; the logo (left) is
+        // uncovered about halfway through the 0.6s close, so switch back then
+        document.documentElement.classList.add('menu-closing');
+        clearTimeout(menuClosingTimer);
+        menuClosingTimer = setTimeout(() => document.documentElement.classList.remove('menu-closing'), 300);
         if (returnFocus) menuBtn.focus({ preventScroll: true });
       }
     };
 
-    menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+    menuBtn.addEventListener('click', () => {
+      // Tap feedback: restart the ring animation on every press
+      menuBtn.classList.remove('is-pressed');
+      void menuBtn.offsetWidth;
+      menuBtn.classList.add('is-pressed');
+      setMenu(!menuOpen);
+    });
+    menuBtn.addEventListener('animationend', () => menuBtn.classList.remove('is-pressed'));
     siteMenu.addEventListener('click', (e) => {
       // Links close the menu before the browser follows them (the page is unlocked first so the
       // smooth scroll to the section starts from the right place); taps on empty space close it too.
@@ -1787,7 +1886,10 @@
         const items = menuFocusables();
         const first = items[0];
         const last = items[items.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        if (e.shiftKey && (document.activeElement === first || document.activeElement === siteMenu)) {
+          e.preventDefault();
+          (document.activeElement === siteMenu ? first : last).focus();
+        }
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     });
