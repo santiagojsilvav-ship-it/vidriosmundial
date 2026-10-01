@@ -38,10 +38,10 @@
   <meta name="twitter:description" content="Vidrio arquitectónico, sistemas de aluminio e instalación integral en Venezuela desde 1972." />
   <meta name="twitter:image" content="https://vidriosmundial.vercel.app/images/og-image.jpg" />
 
-  <!-- Fonts: Inter (UI) + Instrument Serif (display serif). Inter 300 is not used (font-light is only on the serif). -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <!-- Fonts: Inter (UI) + Instrument Serif (display), self-hosted (@font-face in css/site.css).
+       Preloaded so they arrive with the stylesheet instead of after it. -->
+  <link rel="preload" href="./fonts/inter-latin-v20.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="./fonts/instrument-serif-latin-v5.woff2" as="font" type="font/woff2" crossorigin />
 
   <style>
     ::selection {
