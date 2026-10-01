@@ -1369,8 +1369,8 @@
        SCRIPTS
   ============================================================= -->
   <script>
-    // ——— WhatsApp: the number lives only here (placeholder until the real one is confirmed) ———
-    const WHATSAPP_NUMBER = '584141234567';
+    // ——— WhatsApp: the number lives only here (+58 424 267 9160, wa.me format) ———
+    const WHATSAPP_NUMBER = '584242679160';
     const whatsappUrl = (text) => `https://wa.me/${WHATSAPP_NUMBER}${text ? `?text=${encodeURIComponent(text)}` : ''}`;
     document.querySelectorAll('[data-whatsapp]').forEach((link) => {
       link.href = whatsappUrl(link.dataset.whatsapp);
